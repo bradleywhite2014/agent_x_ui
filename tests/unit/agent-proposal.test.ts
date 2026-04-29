@@ -52,7 +52,7 @@ describe("resolveProposeWidgetAddition", () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       const ids = collectWidgetRefs(result.proposal.shell.layout);
-      expect(ids.size).toBe(5);
+      expect(ids.size).toBe(3);
       expect(result.proposal.kind).toBe("widgetAddition");
     }
   });
@@ -63,16 +63,16 @@ describe("resolveProposeWidgetAddition", () => {
       type: "markdown-notes",
       placement: {
         mode: "split-after",
-        anchorInstanceId: "preview-1",
+        anchorInstanceId: "dashboard-1",
         direction: "vertical",
       },
-      reasoning: "Stack a note under the preview",
+      reasoning: "Stack a note under the dashboard",
     });
     expect(result.ok).toBe(true);
     if (result.ok) {
       const ids = collectWidgetRefs(result.proposal.shell.layout);
-      expect(ids.has("preview-1")).toBe(true);
-      expect(ids.size).toBe(5);
+      expect(ids.has("dashboard-1")).toBe(true);
+      expect(ids.size).toBe(3);
     }
   });
 

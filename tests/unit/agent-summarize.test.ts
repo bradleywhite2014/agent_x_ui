@@ -16,11 +16,11 @@ describe("frame structure summary", () => {
   it("emits one widget line per instance", () => {
     const summary = summarizeFrameStructure(dailyOperator());
     expect(summary.frameId).toBe("frame-1");
-    expect(summary.widgets).toHaveLength(4);
+    expect(summary.widgets).toHaveLength(2);
     expect(summary.widgets.join("\n")).toMatch(/rail-1 :: integration-rail/);
-    expect(summary.widgets.join("\n")).toMatch(/notes-1 :: markdown-notes/);
-    expect(summary.widgets.join("\n")).toMatch(/preview-1 :: web-preview/);
-    expect(summary.widgets.join("\n")).toMatch(/atlas-1 :: integrations-atlas/);
+    expect(summary.widgets.join("\n")).toMatch(
+      /dashboard-1 :: role-command-center/,
+    );
   });
 
   it("does NOT include widget contents", () => {
@@ -28,7 +28,7 @@ describe("frame structure summary", () => {
     const summary = summarizeFrameStructure(shell);
     const rendered = renderStructureForPrompt(summary);
     // Confidential prop values from the seed templates should never appear.
-    expect(rendered).not.toContain("morning brief");
+    expect(rendered).not.toContain("cross-functional signal");
     expect(rendered).not.toContain("Write something");
     expect(rendered).not.toContain("https://example.com");
   });

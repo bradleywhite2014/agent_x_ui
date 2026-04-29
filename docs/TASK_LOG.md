@@ -15,6 +15,11 @@
 
 ## Entries
 
+## 2026-04-29 — Role dashboards, toolbar integrations, quiet agent apply
+
+- **Result.** Replaced persona default canvases with `integration-rail` + `role-command-center` dashboards (finance/support/ops/general) using mocked Databricks, ERP, CRM, Zendesk, ServiceNow, Datadog, billing, and email results. Added `Blank Canvas` as the only minimal starter. Moved the integration atlas out of the canvas into a top-toolbar `Integration catalog` sheet; the old atlas widget can still render existing saved frames but is no longer advertised in the widget/catalog list. Agent proposer outputs now auto-apply as reversible revisions and show only a compact "Applied quietly" status instead of a ratify card.
+- **Verification.** `npm run typecheck`, `lint`, `test` (24/24), `build`, `e2e` (5/5).
+
 ## 2026-04-29 — Persona templates (finance, support, ops) + frames picker UX
 
 - **Result.** Added `finance-desk`, `support-console`, `ops-pulse` templates sharing the operator-console layout with role-specific seeded markdown + rail labels + atlas titles; refactored `daily-operator` through shared `buildOperatorConsoleShell`. Frames page: persona badges, sorted templates, human template names on saved frames, updated hero copy. `GET /api/frames` template list includes optional `persona`.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, X, Loader2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
@@ -34,6 +34,90 @@ export interface ProposalCardProps {
   frameId: string;
   /** Called after a successful ratify so the surrounding shell view can resync. */
   onRatified?: (newShell: Shell) => void;
+}
+
+const AUTO_APPLIED_PROPOSALS = new Set<string>();
+
+export function AutoApplyProposal({
+  proposal,
+  parentRevisionId,
+  frameId,
+  onRatified,
+}: Omit<ProposalCardProps, "currentShell">) {
+  const [status, setStatus] = useState<"applying" | "applied" | "error">(
+    AUTO_APPLIED_PROPOSALS.has(proposal.proposalId) ? "applied" : "applying",
+  );
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const startedRef = useRef(false);
+
+  useEffect(() => {
+    if (AUTO_APPLIED_PROPOSALS.has(proposal.proposalId)) {
+      return;
+    }
+    if (startedRef.current) return;
+    startedRef.current = true;
+
+    async function apply() {
+      setStatus("applying");
+      try {
+        const res = await fetch(`/api/frames/${frameId}/revisions`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            config: proposal.shell,
+            parentRevisionId,
+            reasoning: proposal.reasoning,
+            authoredBy: "agent",
+          }),
+        });
+        if (!res.ok) {
+          const body = (await res.json().catch(() => null)) as
+            | { error?: string }
+            | null;
+          throw new Error(body?.error ?? `HTTP ${res.status}`);
+        }
+        AUTO_APPLIED_PROPOSALS.add(proposal.proposalId);
+        setStatus("applied");
+        toast.success("Applied", {
+          description: "Change saved as a revision. History can revert it.",
+        });
+        onRatified?.(proposal.shell);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Failed to apply";
+        setErrorMsg(msg);
+        setStatus("error");
+        toast.error(msg);
+      }
+    }
+
+    void apply();
+  }, [frameId, onRatified, parentRevisionId, proposal]);
+
+  if (status === "error") {
+    return (
+      <ProposalErrorCard
+        error={{
+          code: "auto_apply_failed",
+          message: errorMsg ?? "Failed to apply proposal",
+        }}
+      />
+    );
+  }
+
+  return (
+    <div className="border-border bg-muted/30 flex items-center gap-1.5 rounded-md border px-2 py-1.5 text-xs">
+      {status === "applying" ? (
+        <Loader2 className="size-3 animate-spin" />
+      ) : (
+        <Check className="text-primary size-3" />
+      )}
+      <span className="text-muted-foreground">
+        {status === "applying"
+          ? "Applying change…"
+          : "Applied quietly · revert from History"}
+      </span>
+    </div>
+  );
 }
 
 export function ProposalCard({

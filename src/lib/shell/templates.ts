@@ -55,11 +55,8 @@ function buildOperatorConsoleShell(opts: {
   slug: string;
   frameName: string;
   railProductLabel: string;
-  notesTitle: string;
-  notesMarkdown: string;
-  previewTitle: string;
-  previewUrl: string;
-  atlasTitle: string;
+  dashboardPersona: "finance" | "support" | "operations" | "general";
+  dashboardTitle: string;
   metadataDescription: string;
   metadataIcon: string;
 }): Shell {
@@ -71,26 +68,10 @@ function buildOperatorConsoleShell(opts: {
     layout: {
       kind: "split",
       direction: "horizontal",
-      sizes: [20, 80],
+      sizes: [18, 82],
       children: [
         { kind: "widget", instanceId: "rail-1" },
-        {
-          kind: "split",
-          direction: "vertical",
-          sizes: [58, 42],
-          children: [
-            {
-              kind: "split",
-              direction: "horizontal",
-              sizes: [50, 50],
-              children: [
-                { kind: "widget", instanceId: "notes-1" },
-                { kind: "widget", instanceId: "preview-1" },
-              ],
-            },
-            { kind: "widget", instanceId: "atlas-1" },
-          ],
-        },
+        { kind: "widget", instanceId: "dashboard-1" },
       ],
     },
     widgets: {
@@ -100,24 +81,11 @@ function buildOperatorConsoleShell(opts: {
           productLabel: opts.railProductLabel,
         },
       },
-      "notes-1": {
-        type: "markdown-notes",
+      "dashboard-1": {
+        type: "role-command-center",
         props: {
-          title: opts.notesTitle,
-          content: opts.notesMarkdown,
-        },
-      },
-      "preview-1": {
-        type: "web-preview",
-        props: {
-          title: opts.previewTitle,
-          url: opts.previewUrl,
-        },
-      },
-      "atlas-1": {
-        type: "integrations-atlas",
-        props: {
-          title: opts.atlasTitle,
+          persona: opts.dashboardPersona,
+          title: opts.dashboardTitle,
         },
       },
     },
@@ -134,7 +102,7 @@ export const TEMPLATES: Template[] = [
     name: "Finance Desk",
     persona: "finance",
     description:
-      "Deal-style desk: rail for treasury posture, notes tuned for liquidity / covenant checkpoints, preview + middleware atlas for ERP & accounting mocks.",
+      "Treasury-grade console with mocked Databricks finance marts, ERP reads, AR risk, and close-work signals.",
     icon: "landmark",
     build: (id) =>
       buildOperatorConsoleShell({
@@ -142,24 +110,10 @@ export const TEMPLATES: Template[] = [
         slug: "finance-desk",
         frameName: "Finance Desk",
         railProductLabel: "Finance",
-        notesTitle: "Desk notes",
-        notesMarkdown: `# Deal desk · morning
-
-## Liquidity & exposure
-- [ ] Cash vs policy limits & LOC headroom
-- [ ] Open confirmations / breaks / fails
-
-## Today
-- [ ] Funding ladder & rolls to watch
-- [ ] Covenant / reporting calendar
-
-## Audit trail
-_Journal decisions here. Agent X never holds core-banking credentials — ERP reads stay behind your adapters (mocked in the atlas until wired)._`,
-        previewTitle: "Market / filings",
-        previewUrl: "https://www.sec.gov/edgar/search/",
-        atlasTitle: "Integrations · Finance",
+        dashboardPersona: "finance",
+        dashboardTitle: "Finance Desk",
         metadataDescription:
-          "Finance persona console — ERP, ledger reads, filings.",
+          "Finance persona console — Databricks financial marts, ERP, billing, and close signals.",
         metadataIcon: "landmark",
       }),
   },
@@ -168,7 +122,7 @@ _Journal decisions here. Agent X never holds core-banking credentials — ERP re
     name: "Support Console",
     persona: "support",
     description:
-      "CX-focused rail + queue notes for Zendesk-style ticketing handoffs; atlas surfaces support APIs as mocks until connectors authenticate.",
+      "Customer-experience console with mocked Zendesk, CRM, product telemetry, SLA risk, and suggested handoffs.",
     icon: "headset",
     build: (id) =>
       buildOperatorConsoleShell({
@@ -176,24 +130,10 @@ _Journal decisions here. Agent X never holds core-banking credentials — ERP re
         slug: "support-console",
         frameName: "Support Console",
         railProductLabel: "Support",
-        notesTitle: "Queue",
-        notesMarkdown: `# Queue · shift handoff
-
-## Hot tickets _(paste IDs / links)_
-- 
-
-## Macros / snippets
-
-
-## Escalations & SMEs
-
-
-_Link Zendesk / CX tooling once OAuth is wired — the integrations atlas lists mocked Zendesk APIs for composability testing._`,
-        previewTitle: "Help center",
-        previewUrl: "https://example.com",
-        atlasTitle: "Integrations · CX",
+        dashboardPersona: "support",
+        dashboardTitle: "Support Console",
         metadataDescription:
-          "Support persona console — tickets, users, SLAs (mocked APIs).",
+          "Support persona console — tickets, SLA risk, CRM health, and docs-search mocks.",
         metadataIcon: "headset",
       }),
   },
@@ -202,7 +142,7 @@ _Link Zendesk / CX tooling once OAuth is wired — the integrations atlas lists 
     name: "Ops Pulse",
     persona: "operations",
     description:
-      "Incident / SLI posture with ops checklist notes; atlas highlights ERP + observability mocks for runbooks.",
+      "Operations pulse with mocked ServiceNow, Datadog, SAP / ERP inventory, and vendor status signals.",
     icon: "activity",
     build: (id) =>
       buildOperatorConsoleShell({
@@ -210,25 +150,10 @@ _Link Zendesk / CX tooling once OAuth is wired — the integrations atlas lists 
         slug: "ops-pulse",
         frameName: "Ops Pulse",
         railProductLabel: "Operations",
-        notesTitle: "Pulse",
-        notesMarkdown: `# Ops pulse
-
-## Incidents & SLIs
-- [ ] Active / sev review queue
-- [ ] Vendor / SaaS status checks
-
-## Ship window / change train
-
-
-## Risks & dependencies
-
-
-_Use the integrations atlas for ERP snapshots + tooling mocks — wire prod adapters per tenant policy._`,
-        previewTitle: "Status",
-        previewUrl: "https://example.com",
-        atlasTitle: "Integrations · Ops",
+        dashboardPersona: "operations",
+        dashboardTitle: "Ops Pulse",
         metadataDescription:
-          "Operations persona console — incidents, ERP hints, vendors.",
+          "Operations persona console — incidents, inventory, deploy risk, and vendor health.",
         metadataIcon: "activity",
       }),
   },
@@ -237,7 +162,7 @@ _Use the integrations atlas for ERP snapshots + tooling mocks — wire prod adap
     name: "Daily Operator",
     persona: "general",
     description:
-      "Balanced day-plan surface: rail, notes + preview stack, integrations atlas — default multi-role starter.",
+      "Cross-functional operating surface with mocked CRM, ERP, support, email, and Databricks-style signals.",
     icon: "calendar-clock",
     build: (id) =>
       buildOperatorConsoleShell({
@@ -245,46 +170,37 @@ _Use the integrations atlas for ERP snapshots + tooling mocks — wire prod adap
         slug: "daily-operator",
         frameName: "Daily Operator",
         railProductLabel: "Agent X",
-        notesTitle: "Today",
-        notesMarkdown: `# Today
-
-- [ ] Write the morning brief
-- [ ] Review yesterday's loose ends
-- [ ] One thing that would make today a win`,
-        previewTitle: "Workspace",
-        previewUrl: "https://example.com",
-        atlasTitle: "Middleware catalog",
+        dashboardPersona: "general",
+        dashboardTitle: "Daily Operator",
         metadataDescription:
-          "Operator console: integration rail, notes + preview stack, integrations atlas strip.",
+          "General operator console — cross-functional mock integration signals.",
         metadataIcon: "calendar-clock",
       }),
   },
   {
-    slug: "scratch",
-    name: "Scratchpad",
+    slug: "blank-canvas",
+    name: "Blank Canvas",
     persona: "utility",
     description:
-      "Single notes panel — smallest shell for experiments and schema smoke tests.",
-    icon: "notebook-pen",
+      "Empty composable frame — start from nothing and let the agent or Edit mode add the right surface.",
+    icon: "panel-top-open",
     build: (id) => ({
       $schema: SHELL_VERSION,
       id,
-      name: "Scratchpad",
-      template: "scratch",
-      layout: { kind: "widget", instanceId: "notes-1" },
+      name: "Blank Canvas",
+      template: "blank-canvas",
+      layout: { kind: "widget", instanceId: "blank-1" },
       widgets: {
-        "notes-1": {
-          type: "markdown-notes",
+        "blank-1": {
+          type: "blank-canvas",
           props: {
-            title: "Scratch",
-            content:
-              "# Scratchpad\n\nA single notes panel. Use it to draft, paste, think.\n",
+            title: "Blank canvas",
           },
         },
       },
       metadata: {
-        description: "Single-panel notes surface.",
-        icon: "notebook-pen",
+        description: "Empty shell for composing from scratch.",
+        icon: "panel-top-open",
       },
     }),
   },

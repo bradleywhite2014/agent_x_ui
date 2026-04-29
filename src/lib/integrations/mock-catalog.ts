@@ -81,6 +81,24 @@ export const MOCK_INTEGRATION_CAPABILITIES: IntegrationCapability[] = [
     apiRef: "widgets.viz.embed",
   },
   {
+    id: "databricks-sql",
+    domain: "Data Warehouse — Databricks",
+    label: "databricks.sql.query",
+    description:
+      "Query governed financial marts (cash, AR aging, forecast variance) through approved warehouse endpoints.",
+    status: "mock",
+    apiRef: "integrations.databricks.sql",
+  },
+  {
+    id: "databricks-lineage",
+    domain: "Data Warehouse — Databricks",
+    label: "databricks.lineage.lookup",
+    description:
+      "Resolve source lineage and freshness for dashboard numbers before the agent cites them.",
+    status: "mock",
+    apiRef: "integrations.databricks.lineage",
+  },
+  {
     id: "erp-record",
     domain: "ERP",
     label: "erp.record.read",
@@ -97,6 +115,24 @@ export const MOCK_INTEGRATION_CAPABILITIES: IntegrationCapability[] = [
       "Inventory positions + ATP hints for operator consoles.",
     status: "mock",
     apiRef: "integrations.erp.inventory",
+  },
+  {
+    id: "erp-netsuite-close",
+    domain: "ERP",
+    label: "netsuite.close.tasks",
+    description:
+      "Close checklist, reconciliations, and blockers normalized from NetSuite.",
+    status: "mock",
+    apiRef: "integrations.netsuite.close",
+  },
+  {
+    id: "erp-sap-atp",
+    domain: "ERP",
+    label: "sap.atp.snapshot",
+    description:
+      "Available-to-promise inventory snapshots for ops and finance consoles.",
+    status: "mock",
+    apiRef: "integrations.sap.atp",
   },
   {
     id: "crm-contact",
@@ -117,6 +153,15 @@ export const MOCK_INTEGRATION_CAPABILITIES: IntegrationCapability[] = [
     apiRef: "integrations.crm.pipeline",
   },
   {
+    id: "crm-salesforce-health",
+    domain: "CRM",
+    label: "salesforce.account.health",
+    description:
+      "Account ARR, renewal risk, open support load, and exec-owner mapping.",
+    status: "mock",
+    apiRef: "integrations.salesforce.accountHealth",
+  },
+  {
     id: "zd-ticket",
     domain: "Support — Zendesk",
     label: "zendesk.ticket.read",
@@ -133,6 +178,24 @@ export const MOCK_INTEGRATION_CAPABILITIES: IntegrationCapability[] = [
       "Lookup agents/requesters for routing widgets.",
     status: "mock",
     apiRef: "integrations.zendesk.users",
+  },
+  {
+    id: "servicenow-incidents",
+    domain: "ITSM — ServiceNow",
+    label: "servicenow.incidents.search",
+    description:
+      "Search incident queues and change records for ops command surfaces.",
+    status: "mock",
+    apiRef: "integrations.servicenow.incidents",
+  },
+  {
+    id: "datadog-change-events",
+    domain: "Observability",
+    label: "datadog.change_events.query",
+    description:
+      "Correlate deploys, incidents, metrics, and traces for operational dashboards.",
+    status: "mock",
+    apiRef: "integrations.datadog.changeEvents",
   },
   {
     id: "calendar-ics",

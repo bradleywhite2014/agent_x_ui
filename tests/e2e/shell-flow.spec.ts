@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("create a Daily Operator frame, edit notes, and revert", async ({
+test("create a Daily Operator frame, add a widget, and revert", async ({
   page,
 }) => {
   // Start at the picker.
@@ -15,20 +15,21 @@ test("create a Daily Operator frame, edit notes, and revert", async ({
   // We should land on /frames/<id> with the shell visible.
   await expect(page).toHaveURL(/\/frames\/[0-9a-f-]+/);
   await expect(
-    page.getByRole("region", { name: /widget notes-1/i }),
+    page.getByRole("region", { name: /widget rail-1/i }),
   ).toBeVisible();
   await expect(
-    page.getByRole("region", { name: /widget preview-1/i }),
+    page.getByRole("region", { name: /widget dashboard-1/i }),
   ).toBeVisible();
+  await expect(page.getByRole("button", { name: /integrations/i })).toBeVisible();
+  await expect(page.getByText(/mock api feed/i)).toBeVisible();
 
-  // Edit the notes panel.
-  const editor = page.getByRole("textbox", { name: /today editor/i });
-  await editor.click();
-  await editor.fill("# Today\n\n- [x] Verify Agent X P1 flow");
-
-  // Save creates a revision.
-  await page.getByRole("button", { name: /save notes/i }).click();
-  await expect(page.getByText(/^saved$/)).toBeVisible({ timeout: 10_000 });
+  // Edit mode can still compose extra panels; adding a widget creates a revision.
+  await page.getByRole("button", { name: /^edit$/i }).click();
+  await page.getByRole("button", { name: /^web preview$/i }).click();
+  const previewRegion = page
+    .getByRole("region", { name: /widget web-preview-/i })
+    .first();
+  await expect(previewRegion).toBeVisible();
 
   // Open history. The Sheet shows the running revision count via a Badge.
   await page.getByRole("button", { name: /history/i }).click();
@@ -40,19 +41,19 @@ test("create a Daily Operator frame, edit notes, and revert", async ({
   const revertButtons = page.getByRole("button", { name: /revert here/i });
   await expect(revertButtons.first()).toBeVisible();
 
-  // Revert to the bottom-most revision (genesis), which restores the
-  // template's default notes.
+  // Revert to the bottom-most revision (genesis), which removes the added panel.
   await revertButtons.last().click();
 
-  // Sheet auto-closes on revert; the editor should re-render with the seed text.
-  await expect(editor).toHaveValue(/Today/);
-  await expect(editor).not.toHaveValue(/Verify Agent X P1 flow/);
+  await expect(previewRegion).toBeHidden();
+  await expect(
+    page.getByRole("region", { name: /widget dashboard-1/i }),
+  ).toBeVisible();
 });
 
 test("edit-mode lets the user add and remove a widget", async ({ page }) => {
-  // Pick a fresh Scratchpad to avoid colliding with the other test's frame.
+  // Pick a fresh Blank Canvas to avoid colliding with the other test's frame.
   await page.goto("/frames");
-  await page.getByRole("button", { name: /start a scratchpad/i }).click();
+  await page.getByRole("button", { name: /start a blank canvas/i }).click();
   await expect(page).toHaveURL(/\/frames\/[0-9a-f-]+/);
 
   // Toggle edit mode.
@@ -73,9 +74,9 @@ test("edit-mode lets the user add and remove a widget", async ({ page }) => {
     .first();
   await previewRegion.getByRole("button", { name: /remove widget/i }).click();
 
-  // It should disappear; the original notes-1 region remains.
+  // It should disappear; the original blank-1 region remains.
   await expect(previewRegion).toBeHidden();
   await expect(
-    page.getByRole("region", { name: /widget notes-1/i }),
+    page.getByRole("region", { name: /widget blank-1/i }),
   ).toBeVisible();
 });

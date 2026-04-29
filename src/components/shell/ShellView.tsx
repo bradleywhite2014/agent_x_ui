@@ -7,6 +7,7 @@ import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import {
   ArrowLeft,
+  DatabaseZap,
   Eye,
   History,
   Loader2,
@@ -42,6 +43,7 @@ import { buildThemeWrapperStyle, fontFamilyClass } from "@/lib/theme/resolve";
 import { ShellLayout } from "@/components/shell/Layout";
 import { WidgetHost } from "@/components/shell/WidgetHost";
 import { ChatDock } from "@/components/chat/ChatDock";
+import { IntegrationCatalogSheet } from "@/components/integrations/IntegrationCatalogSheet";
 import { listWidgets } from "@/widgets";
 import type {
   LayoutNode,
@@ -78,6 +80,7 @@ export function ShellView({
   const [pending, startTransition] = useTransition();
   const [historyOpen, setHistoryOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
+  const [integrationsOpen, setIntegrationsOpen] = useState(false);
   const [themeSheetOpen, setThemeSheetOpen] = useState(false);
 
   const { global } = useGlobalTheme();
@@ -372,6 +375,19 @@ export function ShellView({
           ) : null}
 
           <div className="ml-auto flex items-center gap-1.5">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIntegrationsOpen(true)}
+            >
+              <DatabaseZap data-icon="inline-start" />
+              Integrations
+            </Button>
+            <IntegrationCatalogSheet
+              open={integrationsOpen}
+              onOpenChange={setIntegrationsOpen}
+            />
+
             <Button
               size="sm"
               variant={chatOpen ? "default" : "outline"}

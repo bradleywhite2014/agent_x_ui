@@ -17,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  ProposalCard,
+  AutoApplyProposal,
   ProposalErrorCard,
   type ProposalEnvelope,
   type ProposalErrorEnvelope,
@@ -38,7 +38,6 @@ const PROPOSER_NAMES = new Set(["proposeShell", "proposeWidgetAddition"]);
 
 export function ChatDock({
   frameId,
-  currentShell,
   parentRevisionId,
   onRatified,
   open,
@@ -138,7 +137,6 @@ export function ChatDock({
             <MessageRow
               key={m.id}
               message={m}
-              currentShell={currentShell}
               parentRevisionId={parentRevisionId}
               frameId={frameId}
               onRatified={onRatified}
@@ -214,18 +212,19 @@ export function ChatDock({
 
 function MessageRow({
   message,
-  currentShell,
   parentRevisionId,
   frameId,
   onRatified,
 }: {
   message: ReturnType<typeof useChat>["messages"][number];
-  currentShell: Shell;
   parentRevisionId: string;
   frameId: string;
   onRatified: (newShell: Shell) => void;
 }) {
   const isUser = message.role === "user";
+  const hasProposerOutput = message.parts.some(
+    (part) => isToolUIPart(part) && PROPOSER_NAMES.has(getToolName(part)),
+  );
   return (
     <div
       className={cn(
@@ -248,6 +247,7 @@ function MessageRow({
       >
         {message.parts.map((part, i) => {
           if (part.type === "text") {
+            if (!isUser && hasProposerOutput) return null;
             return (
               <p key={i} className={cn(!isUser && "leading-relaxed")}>
                 {part.text}
@@ -272,10 +272,9 @@ function MessageRow({
                 | { ok: false; error: ProposalErrorEnvelope };
               if (out.ok) {
                 return (
-                  <ProposalCard
+                  <AutoApplyProposal
                     key={i}
                     proposal={out.proposal}
-                    currentShell={currentShell}
                     parentRevisionId={parentRevisionId}
                     frameId={frameId}
                     onRatified={onRatified}
@@ -310,7 +309,7 @@ function ToolPending({ name }: { name: string }) {
     <div className="border-border bg-muted/30 flex items-center gap-1.5 rounded-md border p-2 text-xs">
       <Loader2 className="size-3 animate-spin" />
       <code className="font-mono text-[11px]">{name}</code>
-      <span className="text-muted-foreground">building proposal…</span>
+      <span className="text-muted-foreground">preparing change…</span>
     </div>
   );
 }
@@ -341,13 +340,13 @@ function EmptyState() {
         Hi. I read the capability catalog, not your data.
       </p>
       <p className="text-xs leading-relaxed">
-        Tell me what to add, restructure, or build from scratch. I propose; you
-        ratify. I cannot read your widget contents or the database.
+        Tell me what to add, restructure, or build from scratch. I apply
+        reversible changes as revisions; History is your undo stack.
       </p>
       <ul className="text-foreground/70 mt-1 list-disc pl-4 text-left text-[11px]">
-        <li>&ldquo;Add a markdown notes widget next to the preview&rdquo;</li>
-        <li>&ldquo;Replace the preview with two side-by-side notes&rdquo;</li>
-        <li>&ldquo;Give me a research workspace from scratch&rdquo;</li>
+        <li>&ldquo;Turn this into a finance desk with AR risk.&rdquo;</li>
+        <li>&ldquo;Add a support queue panel beside the dashboard.&rdquo;</li>
+        <li>&ldquo;Make a blank canvas for an ops incident room.&rdquo;</li>
       </ul>
     </div>
   );

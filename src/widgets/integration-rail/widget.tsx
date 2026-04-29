@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  LayoutDashboard,
   LifeBuoy,
   Mail,
   Search,
@@ -100,23 +99,12 @@ function IntegrationRail({ props }: WidgetComponentProps<Props>) {
 
       <div className="flex flex-1 flex-col gap-1 overflow-auto px-2 py-2">
         <p className="text-muted-foreground px-1 font-mono text-[0.6rem] tracking-[0.16em] uppercase">
-          Surfaces
+          System map
         </p>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="justify-start gap-2 font-normal"
-          onClick={() =>
-            toast.message("Atlas panel", {
-              description:
-                "The integrations atlas widget lists every mocked API — scroll the bottom pane.",
-            })
-          }
-        >
-          <LayoutDashboard className="size-4 shrink-0 opacity-80" aria-hidden />
-          Integration atlas
-        </Button>
+        <p className="text-muted-foreground px-1 text-xs leading-relaxed">
+          Open <span className="text-foreground">Integrations</span> in the top
+          toolbar to inspect mocked APIs, domains, and future adapter refs.
+        </p>
       </div>
 
       <div className="mt-auto border-t px-3 py-3">

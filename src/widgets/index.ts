@@ -1,7 +1,9 @@
 import type { AnyWidgetModule } from "./types";
+import blankCanvas from "./blank-canvas/widget";
 import integrationRail from "./integration-rail/widget";
 import integrationsAtlas from "./integrations-atlas/widget";
 import markdownNotes from "./markdown-notes/widget";
+import roleCommandCenter from "./role-command-center/widget";
 import webPreview from "./web-preview/widget";
 
 /**
@@ -18,19 +20,27 @@ import webPreview from "./web-preview/widget";
 // into a single registry. The `WidgetHost` validates each instance's props
 // against the module's own schema before rendering, so the loss of static
 // info at the registry boundary is safe at runtime.
-const modules: AnyWidgetModule[] = [
+const visibleModules: AnyWidgetModule[] = [
+  blankCanvas as unknown as AnyWidgetModule,
   integrationRail as unknown as AnyWidgetModule,
-  integrationsAtlas as unknown as AnyWidgetModule,
   markdownNotes as unknown as AnyWidgetModule,
+  roleCommandCenter as unknown as AnyWidgetModule,
   webPreview as unknown as AnyWidgetModule,
 ];
 
+const renderModules: AnyWidgetModule[] = [
+  ...visibleModules,
+  // Existing saved frames from prior iterations can still render the atlas,
+  // but new users discover integrations from the toolbar sheet instead.
+  integrationsAtlas as unknown as AnyWidgetModule,
+];
+
 const bySlug = new Map<string, AnyWidgetModule>(
-  modules.map((m) => [m.meta.slug, m]),
+  renderModules.map((m) => [m.meta.slug, m]),
 );
 
 export function listWidgets(): AnyWidgetModule[] {
-  return modules;
+  return visibleModules;
 }
 
 export function getWidget(slug: string): AnyWidgetModule | undefined {
@@ -38,5 +48,5 @@ export function getWidget(slug: string): AnyWidgetModule | undefined {
 }
 
 export function widgetSlugs(): string[] {
-  return modules.map((m) => m.meta.slug);
+  return visibleModules.map((m) => m.meta.slug);
 }

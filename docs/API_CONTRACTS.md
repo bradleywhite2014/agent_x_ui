@@ -100,7 +100,7 @@
 
 ### `GET /api/integrations/catalog`
 
-**Purpose.** Returns the mocked enterprise/middleware capability list used by the **Integrations Atlas** widget and rail summaries. Everything is **mock** until connector adapters ship — this endpoint exists so UI composition and future agent prompts share one inventory.
+**Purpose.** Returns the mocked enterprise/middleware capability list used by the top-toolbar **Integration catalog** sheet, rail summaries, and future agent prompts. Everything is **mock** until connector adapters ship — this endpoint exists so UI composition and tool prompts share one inventory.
 
 **Response (200).**
 
@@ -117,8 +117,8 @@
       "apiRef": "tools.web.search"
     }
   ],
-  "domains": ["CRM", "Email", "..."],
-  "counts": { "total": 15, "mock": 12, "live": 0, "planned": 3 }
+  "domains": ["CRM", "Data Warehouse — Databricks", "ERP", "..."],
+  "counts": { "total": 22, "mock": 19, "live": 0, "planned": 3 }
 }
 ```
 

@@ -24,5 +24,5 @@ test("frame picker offers built-in templates and lists existing frames", async (
   await expect(page.getByText("Support Console").first()).toBeVisible();
   await expect(page.getByText("Ops Pulse").first()).toBeVisible();
   await expect(page.getByText("Daily Operator").first()).toBeVisible();
-  await expect(page.getByText("Scratchpad").first()).toBeVisible();
+  await expect(page.getByText("Blank Canvas").first()).toBeVisible();
 });

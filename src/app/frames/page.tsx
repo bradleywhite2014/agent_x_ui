@@ -64,11 +64,11 @@ export default function FramesPage() {
             Pick how you want to work.
           </h1>
           <p className="text-muted-foreground mt-3 max-w-2xl text-sm leading-relaxed">
-            Finance, support, and ops starters ship different seeded notes and
-            rail labels — composable like Cursor layouts, constrained to the
-            middleware surface area you wire later. Each frame has its own
-            revision history so you can ratify or revert agent proposals with
-            confidence.
+            Finance, support, and ops starters ship different mocked dashboards
+            and rail actions — composable like Cursor layouts, constrained to
+            the middleware surface area you wire later. Each frame has its own
+            revision history, so agent changes can apply instantly and still be
+            reverted.
           </p>
         </section>
 
@@ -125,9 +125,9 @@ export default function FramesPage() {
             Start from a persona template
           </h2>
           <p className="text-muted-foreground mb-5 max-w-2xl text-xs leading-relaxed">
-            Same operator shell shape everywhere — rail + stack + integrations
-            atlas — tuned copy per role. Add widgets in Edit mode when you need
-            more panels.
+            Role dashboards take the canvas by default; the integration catalog
+            lives in the frame toolbar. Add widgets in Edit mode when you need
+            more panels, or start empty with Blank Canvas.
           </p>
           <div className="grid gap-4 lg:grid-cols-2">
             {SORTED_TEMPLATES.map((t) => (

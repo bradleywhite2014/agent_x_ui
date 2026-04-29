@@ -25,9 +25,9 @@ test("chat dock renders the empty state and toggles open/closed", async ({
     "proposeWidgetAddition",
   ]);
 
-  // Open a fresh Scratchpad frame so we have a /frames/[id] context.
+  // Open a fresh Blank Canvas frame so we have a /frames/[id] context.
   await page.goto("/frames");
-  await page.getByRole("button", { name: /start a scratchpad/i }).click();
+  await page.getByRole("button", { name: /start a blank canvas/i }).click();
   await expect(page).toHaveURL(/\/frames\/[0-9a-f-]+/);
 
   // The dock is open by default. Empty-state copy is visible.
