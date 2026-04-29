@@ -23,7 +23,7 @@
 | `/api/frames/[id]` | GET | P1 | Live (TASK-10) |
 | `/api/frames/[id]/revisions` | GET, POST | P1 | Live (TASK-11). On agent ratify the client POSTs here with `authoredBy = "agent"`. |
 | `/api/frames/[id]/revert` | POST | P1 | Live (TASK-12) |
-| `/api/theme` | GET, PUT | P3 | Planned (TASK-19) |
+| `/api/theme/global` | GET, PUT | P3 | Live (TASK-18..TASK-21) |
 | `/api/tools/web/search` | POST | P5 | Deferred (per user, 2026-04-28) |
 | `/api/tools/web/fetch` | POST | P5 | Deferred (per user, 2026-04-28) |
 | `/api/tools/browse` | POST | P4 | Planned (TASK-22) |
@@ -64,6 +64,40 @@
 **Telemetry.** `route`, `request_id`. No payload logged (the response is the registry itself, deterministic by build).
 
 **Idempotency.** Yes. Safe to retry, no side effects.
+
+### `GET /api/theme/global`
+
+**Purpose.** Returns the persisted global theme defaults (preset, optional light/dark token overrides, density, font pairing). Used by the server layout on first paint and available for diagnostic reads.
+
+**Response (200).**
+
+```json
+{
+  "theme": {
+    "presetId": "default",
+    "density": "normal",
+    "fontFamily": "sans",
+    "overridesLight": {},
+    "overridesDark": {}
+  }
+}
+```
+
+**Errors.** None expected for normal operation (`500` only on prefs IO failure).
+
+---
+
+### `PUT /api/theme/global`
+
+**Purpose.** Persists global theme defaults under prefs key `theme.global`. Called by the Theme Manager when scope is **global**.
+
+**Request.** JSON body must satisfy `globalThemeSchema`: `presetId` ∈ `default` | `slate` | `forest` | `sunset` | `mono`; optional `overridesLight`, `overridesDark` (string→string CSS values); optional `density` ∈ `compact` | `normal` | `comfortable`; optional `fontFamily` ∈ `sans` | `mono`.
+
+**Response (200).** `{ "theme": { ... } }` — authoritative saved state after merge/normalization.
+
+**Errors.** `400` with `{ "error": "...", "issues": [ ... ] }` when validation fails.
+
+---
 
 ## Template for new routes
 

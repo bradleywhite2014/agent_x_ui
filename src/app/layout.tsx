@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { loadGlobalThemeState } from "@/lib/theme/prefs.server";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,11 +20,12 @@ export const metadata: Metadata = {
     "A personal agentic work-surface that runs on your machine and shapes its UI around how you work.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const initialGlobalTheme = loadGlobalThemeState();
   return (
     <html
       lang="en"
@@ -31,7 +33,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="bg-background text-foreground flex min-h-full flex-col">
-        <Providers>{children}</Providers>
+        <Providers initialGlobalTheme={initialGlobalTheme}>{children}</Providers>
       </body>
     </html>
   );

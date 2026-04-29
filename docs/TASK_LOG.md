@@ -15,6 +15,12 @@
 
 ## Entries
 
+## 2026-04-29 — TASK-18..TASK-21: Theme Manager (P3)
+
+- **Result.** Semantic theme tokens (`src/lib/theme/tokens.ts`) with five presets; merge resolution (`resolve.ts`) combines global state + optional `shell.theme` frame overrides for light/dark, density, and font. Global prefs persist under `theme.global` (`prefs.server.ts`) with `GET`/`PUT /api/theme/global`. `ThemeRuntime` injects global CSS for non-frame routes; `ShellView` wraps the frame in `buildThemeWrapperStyle` + `fontFamilyClass` using `useGlobalTheme` + `next-themes` resolved mode. Landing and frames list expose `GlobalThemeMenuButton`; frame chrome adds a palette control + `ThemeManagerSheet` with `scope="frame"` that commits overrides via `POST /api/frames/[id]/revisions`. `GlobalThemeProvider` remounts on server theme snapshot (`key`) after refresh instead of syncing via `useEffect`.
+- **Verification.** `npm run typecheck`, `lint`, `test` (20/20), `build` — all clean.
+- **Notes.** Per-frame overrides clear when the sheet saves an empty draft (payload `undefined`). Lint: avoided `setState` inside effects — draft sync runs when the sheet opens via `onOpenChange`; global theme hydration uses `key={JSON.stringify(initialGlobalTheme)}` on `GlobalThemeProvider`.
+
 ## 2026-04-28 — TASK-13..TASK-17: Agent loop (P2)
 
 - **Result.** The agent loop is live end-to-end: a chat dock in `/frames/[id]` streams from `/api/chat`, the model receives the capability catalog + a structure-only summary of the current frame, and only ever writes to the surface by calling one of two typed proposers (`proposeShell`, `proposeWidgetAddition`). Every proposal is server-validated against the catalog and the Shell schema, returned as a `MutationProposal` envelope, rendered as a side-by-side ratify card in the dock, and only persisted as a new revision (`authoredBy = "agent"`, with the agent's reasoning) when the user clicks Ratify.

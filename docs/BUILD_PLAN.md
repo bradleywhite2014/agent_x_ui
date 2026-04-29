@@ -8,9 +8,9 @@
 - **P0** Project foundation: Next.js 15 + TS strict + Tailwind v4 + shadcn + Drizzle/SQLite + Vitest + Playwright + AI SDK
 - **P1** Shell-as-config runtime: Zod-validated shell document, layout grid, widget host, two starter widgets (Markdown notes, Web Preview)
 - **P2** Agent loop end-to-end on one flow: chat dock → propose JSON Patch → ratify/reject UI → revision row written → revert button works
+- **P3** Theme Manager — semantic CSS tokens, five presets (`default`, `slate`, `forest`, `sunset`, `mono`), global prefs (`theme.global`) + per-frame overrides on `shell.theme`, Theme Manager sheet with live preview — **shipped** (TASK-18..TASK-21)
 
 ### Next (~weeks 3–5)
-- **P3** Theme Manager (preset themes + custom palette/radius/density/font editor)
 - **P4** **`BrowserPane` widget** — embedded browser with floating-window chrome (drag/resize/minimize), persisted window state, multi-browser registry, and the `agent.browser.*` API for read/click/type/navigate, copying Space Agent's `<x-browser>` pattern
 - **P5** Public-web tools: web search, allowlisted HTTP GET, RSS, ICS calendar
 - **P6** Frame templates: Daily Operator, Research Workspace, Project Tracker, Reading Room

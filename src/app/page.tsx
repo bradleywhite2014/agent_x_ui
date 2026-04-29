@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { GlobalThemeMenuButton } from "@/components/theme/GlobalThemeMenuButton";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Home() {
@@ -28,7 +29,10 @@ export default function Home() {
               v0.1 pre-alpha
             </Badge>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <GlobalThemeMenuButton />
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 

@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -10,6 +11,7 @@ import {
   History,
   Loader2,
   MessageSquare,
+  Palette,
   Pencil,
   Plus,
   Trash2,
@@ -33,11 +35,19 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { ThemeManagerSheet } from "@/components/theme/ThemeManagerSheet";
+import { useGlobalTheme } from "@/components/theme/GlobalThemeProvider";
+import { buildThemeWrapperStyle, fontFamilyClass } from "@/lib/theme/resolve";
 import { ShellLayout } from "@/components/shell/Layout";
 import { WidgetHost } from "@/components/shell/WidgetHost";
 import { ChatDock } from "@/components/chat/ChatDock";
 import { listWidgets } from "@/widgets";
-import type { LayoutNode, Shell, WidgetInstance } from "@/lib/shell/schema";
+import type {
+  LayoutNode,
+  Shell,
+  ThemeOverride,
+  WidgetInstance,
+} from "@/lib/shell/schema";
 import type {
   FrameSummary,
   RevisionSummary,
@@ -66,6 +76,17 @@ export function ShellView({
   const [pending, startTransition] = useTransition();
   const [historyOpen, setHistoryOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
+  const [themeSheetOpen, setThemeSheetOpen] = useState(false);
+
+  const { global } = useGlobalTheme();
+  const { resolvedTheme } = useTheme();
+  const resolvedDark = resolvedTheme === "dark";
+  const wrapperStyle = buildThemeWrapperStyle(
+    global,
+    shell.theme,
+    resolvedDark,
+  );
+  const ffClass = fontFamilyClass(global, shell.theme);
 
   // Resync local state when the server-rendered prop changes (e.g. after a
   // `router.refresh()` following a revert). We track the last seen
@@ -111,6 +132,16 @@ export function ShellView({
       return body.revision;
     },
     [frame.id, revisionId],
+  );
+
+  const applyFrameTheme = useCallback(
+    async (next: ThemeOverride | undefined) => {
+      await commitRevision(
+        { ...shell, theme: next },
+        next === undefined ? "Cleared frame theme" : "Updated frame theme",
+      );
+    },
+    [shell, commitRevision],
   );
 
   const updateWidgetProps = useCallback(
@@ -270,7 +301,13 @@ export function ShellView({
   const placedSet = useMemo(() => collectIds(shell.layout), [shell.layout]);
 
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col">
+    <div
+      className={cn(
+        "flex h-full min-h-0 flex-1 flex-col",
+        ffClass,
+      )}
+      style={wrapperStyle}
+    >
       <header className="bg-background sticky top-0 z-10 border-b">
         <div className="flex items-center gap-2 px-4 py-2.5">
           <Tooltip>
@@ -416,6 +453,22 @@ export function ShellView({
             </Sheet>
 
             <Separator orientation="vertical" className="mx-1 h-6" />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              aria-label="Frame theme"
+              onClick={() => setThemeSheetOpen(true)}
+            >
+              <Palette className="size-4" />
+            </Button>
+            <ThemeManagerSheet
+              open={themeSheetOpen}
+              onOpenChange={setThemeSheetOpen}
+              scope="frame"
+              shell={shell}
+              onApplyFrameTheme={applyFrameTheme}
+            />
             <ThemeToggle />
           </div>
         </div>

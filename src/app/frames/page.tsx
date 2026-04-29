@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
+import { GlobalThemeMenuButton } from "@/components/theme/GlobalThemeMenuButton";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { listFrames } from "@/lib/shell/repo";
 import { TEMPLATES } from "@/lib/shell/templates";
@@ -38,7 +39,10 @@ export default function FramesPage() {
               v0.1 pre-alpha
             </Badge>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <GlobalThemeMenuButton />
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 

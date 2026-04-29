@@ -76,7 +76,12 @@ export type WidgetInstance = z.infer<typeof widgetInstanceSchema>;
 export const themeOverrideSchema = z
   .object({
     presetId: z.string().optional(),
+    /** Legacy: merged into light palette only. */
     tokens: z.record(z.string(), z.string()).optional(),
+    overridesLight: z.record(z.string(), z.string()).optional(),
+    overridesDark: z.record(z.string(), z.string()).optional(),
+    density: z.enum(["compact", "normal", "comfortable"]).optional(),
+    fontFamily: z.enum(["sans", "mono"]).optional(),
   })
   .optional();
 
