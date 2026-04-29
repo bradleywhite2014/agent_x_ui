@@ -28,6 +28,7 @@ export async function GET(req: Request): Promise<Response> {
       name: t.name,
       description: t.description,
       icon: t.icon,
+      persona: t.persona ?? null,
     }));
     return jsonOk(req, { frames, templates });
   } catch (err) {

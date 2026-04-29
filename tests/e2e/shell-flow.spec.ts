@@ -6,7 +6,7 @@ test("create a Daily Operator frame, edit notes, and revert", async ({
   // Start at the picker.
   await page.goto("/frames");
   await expect(
-    page.getByRole("heading", { name: /pick a frame to work in/i }),
+    page.getByRole("heading", { name: /pick how you want to work/i }),
   ).toBeVisible();
 
   // Create a Daily Operator frame.

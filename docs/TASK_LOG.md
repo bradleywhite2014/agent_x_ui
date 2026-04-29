@@ -15,6 +15,11 @@
 
 ## Entries
 
+## 2026-04-29 — Persona templates (finance, support, ops) + frames picker UX
+
+- **Result.** Added `finance-desk`, `support-console`, `ops-pulse` templates sharing the operator-console layout with role-specific seeded markdown + rail labels + atlas titles; refactored `daily-operator` through shared `buildOperatorConsoleShell`. Frames page: persona badges, sorted templates, human template names on saved frames, updated hero copy. `GET /api/frames` template list includes optional `persona`.
+- **Verification.** `npm run typecheck`, `lint`, `test`, `build`, `e2e` (5/5).
+
 ## 2026-04-29 — shadcn + theme layering (document + merged document theme)
 
 - **Result.** Refactored theme serialization; added `serializeMergedDocumentStyle` + `MergedDocumentTheme` so `:root`/`.dark` match global∪frame while `/frames/[id]` is mounted — portaled shadcn primitives inherit the same tokens as the shell. Theme Manager lists **all** `CSS_VAR_KEYS` for light overrides. `AGENTS.md` documents the contract (CLI add, semantic classes, CSS vars).

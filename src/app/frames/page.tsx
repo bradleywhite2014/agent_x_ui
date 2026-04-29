@@ -13,10 +13,19 @@ import { buttonVariants } from "@/components/ui/button";
 import { GlobalThemeMenuButton } from "@/components/theme/GlobalThemeMenuButton";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { listFrames } from "@/lib/shell/repo";
-import { TEMPLATES } from "@/lib/shell/templates";
+import {
+  findTemplate,
+  PERSONA_LABEL,
+  personaRank,
+  TEMPLATES,
+} from "@/lib/shell/templates";
 import { CreateFrameButton } from "./CreateFrameButton";
 
 export const dynamic = "force-dynamic";
+
+const SORTED_TEMPLATES = [...TEMPLATES].sort(
+  (a, b) => personaRank(a.persona) - personaRank(b.persona),
+);
 
 export default function FramesPage() {
   const frames = listFrames();
@@ -52,12 +61,14 @@ export default function FramesPage() {
             Frames · Workspaces
           </p>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-            Pick a frame to work in.
+            Pick how you want to work.
           </h1>
-          <p className="text-muted-foreground mt-3 max-w-2xl text-sm">
-            A frame is a named work surface — a layout with a set of widgets and
-            its own revision history. Pick one of yours, or start a new one
-            from a template.
+          <p className="text-muted-foreground mt-3 max-w-2xl text-sm leading-relaxed">
+            Finance, support, and ops starters ship different seeded notes and
+            rail labels — composable like Cursor layouts, constrained to the
+            middleware surface area you wire later. Each frame has its own
+            revision history so you can ratify or revert agent proposals with
+            confidence.
           </p>
         </section>
 
@@ -68,8 +79,8 @@ export default function FramesPage() {
           {frames.length === 0 ? (
             <Card className="border-dashed">
               <CardContent className="text-muted-foreground flex flex-col items-start gap-2 py-6 text-sm">
-                You don&apos;t have any frames yet. Pick a template below to
-                start one.
+                You don&apos;t have any frames yet. Pick a persona template
+                below to start one.
               </CardContent>
             </Card>
           ) : (
@@ -78,7 +89,7 @@ export default function FramesPage() {
                 <Card key={f.id} className="group/frame transition-colors">
                   <CardHeader>
                     <CardDescription className="font-mono text-[0.65rem] tracking-[0.18em] uppercase">
-                      {f.template}
+                      {findTemplate(f.template)?.name ?? f.template}
                     </CardDescription>
                     <CardTitle className="text-lg font-semibold">
                       {f.name}
@@ -110,22 +121,37 @@ export default function FramesPage() {
         </section>
 
         <section className="mt-12">
-          <h2 className="text-foreground/80 mb-3 text-sm font-medium tracking-tight">
-            Start from a template
+          <h2 className="text-foreground/80 mb-1 text-sm font-medium tracking-tight">
+            Start from a persona template
           </h2>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {TEMPLATES.map((t) => (
-              <Card key={t.slug}>
-                <CardHeader>
-                  <CardDescription className="font-mono text-[0.65rem] tracking-[0.18em] uppercase">
-                    Template
-                  </CardDescription>
-                  <CardTitle className="text-lg font-semibold">
-                    {t.name}
-                  </CardTitle>
+          <p className="text-muted-foreground mb-5 max-w-2xl text-xs leading-relaxed">
+            Same operator shell shape everywhere — rail + stack + integrations
+            atlas — tuned copy per role. Add widgets in Edit mode when you need
+            more panels.
+          </p>
+          <div className="grid gap-4 lg:grid-cols-2">
+            {SORTED_TEMPLATES.map((t) => (
+              <Card key={t.slug} className="flex flex-col">
+                <CardHeader className="gap-3">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <CardDescription className="font-mono text-[0.65rem] tracking-[0.18em] uppercase">
+                        Template
+                      </CardDescription>
+                      <CardTitle className="text-lg font-semibold tracking-tight">
+                        {t.name}
+                      </CardTitle>
+                    </div>
+                    <Badge
+                      variant="secondary"
+                      className="text-muted-foreground shrink-0 font-normal"
+                    >
+                      {PERSONA_LABEL[t.persona ?? "general"]}
+                    </Badge>
+                  </div>
                 </CardHeader>
-                <CardContent className="flex flex-col gap-3">
-                  <p className="text-muted-foreground text-sm">
+                <CardContent className="mt-auto flex flex-col gap-4">
+                  <p className="text-muted-foreground text-sm leading-relaxed">
                     {t.description}
                   </p>
                   <CreateFrameButton template={t.slug} label={t.name} />

@@ -18,8 +18,11 @@ test("frame picker offers built-in templates and lists existing frames", async (
 }) => {
   await page.goto("/frames");
   await expect(
-    page.getByRole("heading", { name: /pick a frame to work in/i }),
+    page.getByRole("heading", { name: /pick how you want to work/i }),
   ).toBeVisible();
+  await expect(page.getByText("Finance Desk").first()).toBeVisible();
+  await expect(page.getByText("Support Console").first()).toBeVisible();
+  await expect(page.getByText("Ops Pulse").first()).toBeVisible();
   await expect(page.getByText("Daily Operator").first()).toBeVisible();
   await expect(page.getByText("Scratchpad").first()).toBeVisible();
 });
