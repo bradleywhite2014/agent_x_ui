@@ -27,7 +27,7 @@ export const TEMPLATES: Template[] = [
     slug: "daily-operator",
     name: "Daily Operator",
     description:
-      "A focused two-pane surface: a notes panel for the day on the left and an embedded preview on the right.",
+      "App-shell layout: left integration rail, stacked notes + web preview, bottom integrations atlas for mocked APIs.",
     icon: "calendar-clock",
     build: (id) => ({
       $schema: SHELL_VERSION,
@@ -37,13 +37,35 @@ export const TEMPLATES: Template[] = [
       layout: {
         kind: "split",
         direction: "horizontal",
-        sizes: [50, 50],
+        sizes: [20, 80],
         children: [
-          { kind: "widget", instanceId: "notes-1" },
-          { kind: "widget", instanceId: "preview-1" },
+          { kind: "widget", instanceId: "rail-1" },
+          {
+            kind: "split",
+            direction: "vertical",
+            sizes: [58, 42],
+            children: [
+              {
+                kind: "split",
+                direction: "horizontal",
+                sizes: [50, 50],
+                children: [
+                  { kind: "widget", instanceId: "notes-1" },
+                  { kind: "widget", instanceId: "preview-1" },
+                ],
+              },
+              { kind: "widget", instanceId: "atlas-1" },
+            ],
+          },
         ],
       },
       widgets: {
+        "rail-1": {
+          type: "integration-rail",
+          props: {
+            productLabel: "Agent X",
+          },
+        },
         "notes-1": {
           type: "markdown-notes",
           props: {
@@ -59,9 +81,16 @@ export const TEMPLATES: Template[] = [
             url: "https://example.com",
           },
         },
+        "atlas-1": {
+          type: "integrations-atlas",
+          props: {
+            title: "Middleware catalog",
+          },
+        },
       },
       metadata: {
-        description: "Two-pane operator surface. Notes left, web preview right.",
+        description:
+          "Operator console: integration rail, notes + preview stack, integrations atlas strip.",
         icon: "calendar-clock",
       },
     }),

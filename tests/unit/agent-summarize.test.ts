@@ -16,9 +16,11 @@ describe("frame structure summary", () => {
   it("emits one widget line per instance", () => {
     const summary = summarizeFrameStructure(dailyOperator());
     expect(summary.frameId).toBe("frame-1");
-    expect(summary.widgets).toHaveLength(2);
+    expect(summary.widgets).toHaveLength(4);
+    expect(summary.widgets.join("\n")).toMatch(/rail-1 :: integration-rail/);
     expect(summary.widgets.join("\n")).toMatch(/notes-1 :: markdown-notes/);
     expect(summary.widgets.join("\n")).toMatch(/preview-1 :: web-preview/);
+    expect(summary.widgets.join("\n")).toMatch(/atlas-1 :: integrations-atlas/);
   });
 
   it("does NOT include widget contents", () => {

@@ -52,7 +52,7 @@ describe("resolveProposeWidgetAddition", () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       const ids = collectWidgetRefs(result.proposal.shell.layout);
-      expect(ids.size).toBe(3);
+      expect(ids.size).toBe(5);
       expect(result.proposal.kind).toBe("widgetAddition");
     }
   });
@@ -72,7 +72,7 @@ describe("resolveProposeWidgetAddition", () => {
     if (result.ok) {
       const ids = collectWidgetRefs(result.proposal.shell.layout);
       expect(ids.has("preview-1")).toBe(true);
-      expect(ids.size).toBe(3);
+      expect(ids.size).toBe(5);
     }
   });
 

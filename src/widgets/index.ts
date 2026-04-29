@@ -1,4 +1,6 @@
 import type { AnyWidgetModule } from "./types";
+import integrationRail from "./integration-rail/widget";
+import integrationsAtlas from "./integrations-atlas/widget";
 import markdownNotes from "./markdown-notes/widget";
 import webPreview from "./web-preview/widget";
 
@@ -17,6 +19,8 @@ import webPreview from "./web-preview/widget";
 // against the module's own schema before rendering, so the loss of static
 // info at the registry boundary is safe at runtime.
 const modules: AnyWidgetModule[] = [
+  integrationRail as unknown as AnyWidgetModule,
+  integrationsAtlas as unknown as AnyWidgetModule,
   markdownNotes as unknown as AnyWidgetModule,
   webPreview as unknown as AnyWidgetModule,
 ];

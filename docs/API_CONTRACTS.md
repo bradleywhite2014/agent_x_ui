@@ -23,8 +23,7 @@
 | `/api/frames/[id]` | GET | P1 | Live (TASK-10) |
 | `/api/frames/[id]/revisions` | GET, POST | P1 | Live (TASK-11). On agent ratify the client POSTs here with `authoredBy = "agent"`. |
 | `/api/frames/[id]/revert` | POST | P1 | Live (TASK-12) |
-| `/api/theme/global` | GET, PUT | P3 | Live (TASK-18..TASK-21) |
-| `/api/tools/web/search` | POST | P5 | Deferred (per user, 2026-04-28) |
+| `/api/integrations/catalog` | GET | UX | Live — mock middleware inventory for composable panels |
 | `/api/tools/web/fetch` | POST | P5 | Deferred (per user, 2026-04-28) |
 | `/api/tools/browse` | POST | P4 | Planned (TASK-22) |
 
@@ -96,6 +95,34 @@
 **Response (200).** `{ "theme": { ... } }` — authoritative saved state after merge/normalization.
 
 **Errors.** `400` with `{ "error": "...", "issues": [ ... ] }` when validation fails.
+
+---
+
+### `GET /api/integrations/catalog`
+
+**Purpose.** Returns the mocked enterprise/middleware capability list used by the **Integrations Atlas** widget and rail summaries. Everything is **mock** until connector adapters ship — this endpoint exists so UI composition and future agent prompts share one inventory.
+
+**Response (200).**
+
+```json
+{
+  "version": "agent-x/integrations-catalog/v1",
+  "capabilities": [
+    {
+      "id": "web-search",
+      "domain": "Web & HTTP",
+      "label": "web.search",
+      "description": "...",
+      "status": "mock",
+      "apiRef": "tools.web.search"
+    }
+  ],
+  "domains": ["CRM", "Email", "..."],
+  "counts": { "total": 15, "mock": 12, "live": 0, "planned": 3 }
+}
+```
+
+**Errors.** `500` only on unexpected failure.
 
 ---
 

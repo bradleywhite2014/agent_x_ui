@@ -1,6 +1,8 @@
 import type { z } from "zod";
 
 import type { WidgetMeta } from "./types";
+import * as integrationRailMeta from "./integration-rail/meta";
+import * as integrationsAtlasMeta from "./integrations-atlas/meta";
 import * as markdownNotesMeta from "./markdown-notes/meta";
 import * as webPreviewMeta from "./web-preview/meta";
 
@@ -19,6 +21,20 @@ export interface WidgetMetaEntry {
 }
 
 const entries: WidgetMetaEntry[] = [
+  {
+    meta: integrationRailMeta.meta,
+    propsSchema:
+      integrationRailMeta.propsSchema as unknown as z.ZodType<Record<string, unknown>>,
+    defaultProps:
+      integrationRailMeta.defaultProps as unknown as Record<string, unknown>,
+  },
+  {
+    meta: integrationsAtlasMeta.meta,
+    propsSchema:
+      integrationsAtlasMeta.propsSchema as unknown as z.ZodType<Record<string, unknown>>,
+    defaultProps:
+      integrationsAtlasMeta.defaultProps as unknown as Record<string, unknown>,
+  },
   {
     meta: markdownNotesMeta.meta,
     propsSchema: markdownNotesMeta.propsSchema as unknown as z.ZodType<Record<string, unknown>>,

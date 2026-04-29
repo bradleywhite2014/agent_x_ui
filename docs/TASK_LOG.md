@@ -15,6 +15,11 @@
 
 ## Entries
 
+## 2026-04-29 — Operator chrome + integrations atlas
+
+- **Result.** Daily Operator seed now uses a nested split: **Integration Rail** (left), notes + web preview stack, **Integrations Atlas** strip with mocked Web/Email/Viz/ERP/CRM/Zendesk APIs; `GET /api/integrations/catalog` mirrors the same payload. Shell header adds breadcrumb + template badge. **Integration Rail** and **Integrations Atlas** are registered widgets so Edit → Add widget can compose them like Notes/Web Preview.
+- **Verification.** `npm run typecheck`, `lint`, `test` (22/22), `build`, `e2e` (5/5).
+
 ## 2026-04-29 — TASK-18..TASK-21: Theme Manager (P3)
 
 - **Result.** Semantic theme tokens (`src/lib/theme/tokens.ts`) with five presets; merge resolution (`resolve.ts`) combines global state + optional `shell.theme` frame overrides for light/dark, density, and font. Global prefs persist under `theme.global` (`prefs.server.ts`) with `GET`/`PUT /api/theme/global`. `ThemeRuntime` injects global CSS for non-frame routes; `ShellView` wraps the frame in `buildThemeWrapperStyle` + `fontFamilyClass` using `useGlobalTheme` + `next-themes` resolved mode. Landing and frames list expose `GlobalThemeMenuButton`; frame chrome adds a palette control + `ThemeManagerSheet` with `scope="frame"` that commits overrides via `POST /api/frames/[id]/revisions`. `GlobalThemeProvider` remounts on server theme snapshot (`key`) after refresh instead of syncing via `useEffect`.

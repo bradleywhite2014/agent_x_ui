@@ -52,6 +52,7 @@ import type {
   FrameSummary,
   RevisionSummary,
 } from "@/lib/shell/repo";
+import { TEMPLATES } from "@/lib/shell/templates";
 import { cn } from "@/lib/utils";
 
 export interface ShellViewProps {
@@ -300,6 +301,11 @@ export function ShellView({
 
   const placedSet = useMemo(() => collectIds(shell.layout), [shell.layout]);
 
+  const templateDisplayName = useMemo(() => {
+    const meta = TEMPLATES.find((t) => t.slug === frame.template);
+    return meta?.name ?? frame.template;
+  }, [frame.template]);
+
   return (
     <div
       className={cn(
@@ -325,11 +331,33 @@ export function ShellView({
             <TooltipContent>Back to frames</TooltipContent>
           </Tooltip>
 
-          <div className="flex min-w-0 flex-col">
-            <span className="text-foreground truncate text-sm font-semibold tracking-tight">
-              {frame.name}
-            </span>
-            <span className="text-muted-foreground font-mono text-[0.65rem] tracking-[0.16em] uppercase">
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <nav
+              aria-label="Breadcrumb"
+              className="text-muted-foreground flex flex-wrap items-center gap-1.5 text-[0.65rem]"
+            >
+              <Link
+                href="/frames"
+                className="hover:text-foreground font-medium transition-colors"
+              >
+                Frames
+              </Link>
+              <span aria-hidden className="text-muted-foreground/70">
+                /
+              </span>
+              <span className="text-foreground max-w-[min(100%,12rem)] truncate font-medium sm:max-w-none">
+                {frame.name}
+              </span>
+            </nav>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-foreground truncate text-sm font-semibold tracking-tight">
+                {templateDisplayName}
+              </span>
+              <Badge variant="outline" className="font-mono text-[0.65rem]">
+                composable surface
+              </Badge>
+            </div>
+            <span className="text-muted-foreground font-mono text-[0.65rem] tracking-[0.14em] uppercase">
               {frame.template} · rev {revisionId.slice(0, 8)}
             </span>
           </div>
