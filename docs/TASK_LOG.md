@@ -15,6 +15,11 @@
 
 ## Entries
 
+## 2026-04-29 — Governed web fetch middleware
+
+- **Result.** Added real read-only `web.fetch` as an agent action tool and `/api/tools/web/fetch` route. The middleware performs public HTTP(S) GETs, blocks local/private network targets, honors `AGENT_X_WEB_ALLOWLIST`, clips returned text, extracts basic titles, and logs host/status/latency metadata. Capability catalog now advertises `web.fetch`; Integration catalog marks it live. Docs/env updated for Kernel as the next browser-provider layer (`KERNEL_API_KEY`, Agent Browser/Kernel profile), not a mock.
+- **Verification.** `npm run typecheck`, `lint`, `test` (27/27), `build`, `e2e` (5/5).
+
 ## 2026-04-29 — Role dashboards, toolbar integrations, quiet agent apply
 
 - **Result.** Replaced persona default canvases with `integration-rail` + `role-command-center` dashboards (finance/support/ops/general) using mocked Databricks, ERP, CRM, Zendesk, ServiceNow, Datadog, billing, and email results. Added `Blank Canvas` as the only minimal starter. Moved the integration atlas out of the canvas into a top-toolbar `Integration catalog` sheet; the old atlas widget can still render existing saved frames but is no longer advertised in the widget/catalog list. Agent proposer outputs now auto-apply as reversible revisions and show only a compact "Applied quietly" status instead of a ratify card.

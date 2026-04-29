@@ -16,7 +16,9 @@ import {
   proposeWidgetAdditionInputSchema,
   PROPOSE_SHELL_TOOL,
   PROPOSE_WIDGET_ADDITION_TOOL,
+  WEB_FETCH_TOOL,
 } from "@/lib/agent/tools";
+import { fetchWebResource, webFetchInputSchema } from "@/lib/agent/web";
 import {
   resolveProposeShell,
   resolveProposeWidgetAddition,
@@ -156,6 +158,13 @@ export async function POST(req: Request): Promise<Response> {
           reasoning: input.reasoning,
         });
         return result;
+      },
+    }),
+    [WEB_FETCH_TOOL.name]: tool({
+      description: WEB_FETCH_TOOL.description,
+      inputSchema: webFetchInputSchema,
+      execute: async (input) => {
+        return fetchWebResource(input);
       },
     }),
   };

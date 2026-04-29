@@ -21,10 +21,10 @@
 | `/api/capabilities` | GET | P2 | Live (TASK-13) |
 | `/api/frames` | GET, POST | P1 | Live (TASK-10) |
 | `/api/frames/[id]` | GET | P1 | Live (TASK-10) |
-| `/api/frames/[id]/revisions` | GET, POST | P1 | Live (TASK-11). On agent ratify the client POSTs here with `authoredBy = "agent"`. |
+| `/api/frames/[id]/revisions` | GET, POST | P1 | Live (TASK-11). Agent proposer results are applied by the client with `authoredBy = "agent"`. |
 | `/api/frames/[id]/revert` | POST | P1 | Live (TASK-12) |
 | `/api/integrations/catalog` | GET | UX | Live — mock middleware inventory for composable panels |
-| `/api/tools/web/fetch` | POST | P5 | Deferred (per user, 2026-04-28) |
+| `/api/tools/web/fetch` | POST | P5 | Live — governed public-web fetch middleware |
 | `/api/tools/browse` | POST | P4 | Planned (TASK-22) |
 
 ### `GET /api/capabilities`
@@ -118,11 +118,48 @@
     }
   ],
   "domains": ["CRM", "Data Warehouse — Databricks", "ERP", "..."],
-  "counts": { "total": 22, "mock": 19, "live": 0, "planned": 3 }
+  "counts": { "total": 22, "mock": 18, "live": 1, "planned": 3 }
 }
 ```
 
 **Errors.** `500` only on unexpected failure.
+
+---
+
+### `POST /api/tools/web/fetch`
+
+**Purpose.** Read-only public web fetch through the Agent X middleware backend. Used by the chat agent as tool `web.fetch` and callable directly for diagnostics.
+
+**Request.**
+
+```json
+{
+  "url": "https://kernel.sh/docs/browsers/create-a-browser",
+  "maxChars": 8000
+}
+```
+
+`url` must be absolute `http` or `https`. `maxChars` is optional, min `500`, max `20000`, default `8000`.
+
+**Response (200).**
+
+```json
+{
+  "ok": true,
+  "url": "https://kernel.sh/docs/browsers/create-a-browser",
+  "finalUrl": "https://kernel.sh/docs/browsers/create-a-browser",
+  "status": 200,
+  "contentType": "text/html; charset=utf-8",
+  "title": "Create a Browser - Kernel",
+  "text": "Create a Browser ...",
+  "truncated": false,
+  "policy": { "allowlist": ["*"], "matched": "*" }
+}
+```
+
+**Errors.** `400` for invalid URL, unsupported protocol, private/local target, or fetch failure. `403` for host not matching `AGENT_X_WEB_ALLOWLIST`.
+
+**Governance.** Blocks localhost, `.local`, loopback, RFC1918 IPv4, link-local IPv4, and private IPv6 ranges. If `AGENT_X_WEB_ALLOWLIST` is unset, local sandbox policy is `*` (all public hosts); production/tenant mode must set explicit host patterns.
 
 ---
 

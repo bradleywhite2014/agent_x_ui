@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { webFetchInputSchema } from "./web";
 import type { RiskClass } from "./risk";
 
 /**
@@ -59,7 +60,16 @@ const reasoningSchema = z
   .string()
   .min(1)
   .max(500)
-  .describe("One-sentence justification surfaced to the user in the ratify card and the revision row.");
+  .describe("One-sentence justification saved to revision history.");
+
+export const WEB_FETCH_TOOL: AgentToolDefinition<typeof webFetchInputSchema> = {
+  name: "web.fetch",
+  category: "action",
+  riskClass: "read",
+  description:
+    "Fetch a public http(s) URL through Agent X's governed middleware backend. Use this for source-grounded web context. Blocks private/local network targets and honors AGENT_X_WEB_ALLOWLIST.",
+  inputSchema: webFetchInputSchema,
+};
 
 export const proposeShellInputSchema = z.object({
   shell: candidateShellInput.describe(
@@ -113,10 +123,10 @@ export const proposeWidgetAdditionInputSchema = z.object({
  * function is wired up in `/api/chat/route.ts` so it has access to the request
  * context (current frame summary, request id, etc.).
  *
- * `category = "proposer"` means the tool queues a candidate for user ratification
- * and never writes directly. Those tools are always `riskClass = "read"` because
- * the act of proposing is observation-grade — the user explicitly ratifies in a
- * separate step.
+ * `category = "proposer"` means the tool emits a validated candidate shell.
+ * The server-side tool never writes directly; the client applies it as a local,
+ * reversible revision. Those tools remain `riskClass = "read"` because the
+ * model-side act is observation-grade.
  */
 export interface AgentToolDefinition<TInput extends z.ZodType = z.ZodType> {
   name: string;
@@ -131,7 +141,7 @@ export const PROPOSE_SHELL_TOOL: AgentToolDefinition<typeof proposeShellInputSch
   category: "proposer",
   riskClass: "read",
   description:
-    "Propose a complete new shell (frame layout + widget instances) for the user to ratify. The user reviews a side-by-side preview and explicitly ratifies, edits, or discards. You cannot write to a frame directly. Use this for brand-new frames or whole-frame restructures.",
+    "Propose a complete new shell (frame layout + widget instances). The client validates and applies it as a reversible local revision. You cannot write to a frame directly. Use this for brand-new frames or whole-frame restructures.",
   inputSchema: proposeShellInputSchema,
 };
 
@@ -140,7 +150,7 @@ export const PROPOSE_WIDGET_ADDITION_TOOL: AgentToolDefinition<typeof proposeWid
   category: "proposer",
   riskClass: "read",
   description:
-    "Propose adding a single widget to the current frame. The user reviews and ratifies. Prefer this over proposeShell when the user is iterating on the current frame.",
+    "Propose adding a single widget to the current frame. The client validates and applies it as a reversible local revision. Prefer this over proposeShell when the user is iterating on the current frame.",
   inputSchema: proposeWidgetAdditionInputSchema,
 };
 
@@ -150,6 +160,7 @@ export const PROPOSE_WIDGET_ADDITION_TOOL: AgentToolDefinition<typeof proposeWid
  * catalog endpoint.
  */
 export const AGENT_TOOL_DEFINITIONS: ReadonlyArray<AgentToolDefinition> = [
+  WEB_FETCH_TOOL,
   PROPOSE_SHELL_TOOL,
   PROPOSE_WIDGET_ADDITION_TOOL,
 ];

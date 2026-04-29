@@ -19,13 +19,17 @@ describe("capability catalog", () => {
     }
   });
 
-  it("advertises both proposer tools with read risk class", () => {
+  it("advertises proposer tools and governed web fetch", () => {
     const catalog = buildCapabilityCatalog();
     const names = catalog.tools.map((t) => t.name).sort();
-    expect(names).toEqual(["proposeShell", "proposeWidgetAddition"]);
-    for (const t of catalog.tools) {
-      expect(t.category).toBe("proposer");
-      expect(t.riskClass).toBe("read");
-    }
+    expect(names).toEqual(["proposeShell", "proposeWidgetAddition", "web.fetch"]);
+    expect(catalog.tools.find((t) => t.name === "web.fetch")).toMatchObject({
+      category: "action",
+      riskClass: "read",
+    });
+    expect(catalog.tools.find((t) => t.name === "proposeShell")).toMatchObject({
+      category: "proposer",
+      riskClass: "read",
+    });
   });
 });

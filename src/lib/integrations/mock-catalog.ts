@@ -31,8 +31,8 @@ export const MOCK_INTEGRATION_CAPABILITIES: IntegrationCapability[] = [
     domain: "Web & HTTP",
     label: "web.fetch",
     description:
-      "Allowlisted HTTP GET for HTML/JSON artifacts. Respects robots + host policy.",
-    status: "mock",
+      "Allowlisted public HTTP GET through Agent X middleware. Blocks private/local targets and returns clipped text.",
+    status: "live",
     apiRef: "tools.web.fetch",
   },
   {

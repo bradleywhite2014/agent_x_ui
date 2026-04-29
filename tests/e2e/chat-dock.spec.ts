@@ -23,6 +23,7 @@ test("chat dock renders the empty state and toggles open/closed", async ({
   expect(catalog.tools.map((t) => t.name).sort()).toEqual([
     "proposeShell",
     "proposeWidgetAddition",
+    "web.fetch",
   ]);
 
   // Open a fresh Blank Canvas frame so we have a /frames/[id] context.

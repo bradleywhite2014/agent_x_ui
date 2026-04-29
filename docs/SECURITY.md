@@ -30,12 +30,15 @@ Three places data flows out of the operator's machine in v1:
    - Not sent: enterprise credentials, raw cookies, raw OAuth tokens, raw screenshots unless a tool result deliberately includes one.
    - Operator can swap providers via `.env.local`. A future Sovereign tier will support local models with no third-party LLM calls.
 2. **Authorized tool calls.** The agent invokes typed tools. Each tool's destination is fixed and visible:
-   - `web.search` → the configured search provider.
-   - `web.fetch`, `web.rss`, `calendar.ics` → only hosts on the operator's allowlist (`~/.agent-x/config.yaml`).
+   - `web.fetch` → Agent X's local middleware backend, which performs a public HTTP(S) GET, blocks local/private network targets, clips returned text, and honors `AGENT_X_WEB_ALLOWLIST` (default `*` in local sandbox; set explicit hosts for stricter operation).
+   - `web.search` → the configured search provider (not yet wired).
+   - `web.rss`, `calendar.ics` → planned tools; only hosts on the operator's allowlist.
    - `browser.*` → whatever URL the operator (or the agent under operator ratification) opened in a `BrowserPane` widget. v1 uses iframes, so calls cross the iframe `postMessage` bridge and inherit the embedding browser's cookie scope; v1.5 will use Electron `<webview>` partitions for full session inheritance.
 3. **Operator-initiated network calls** from inside the rendered shell (e.g., a `web-preview` widget loading a URL the operator typed). These are the operator's normal browser activity, performed inside Agent X's browser tab; no Agent X server is in the path.
 
-The agent **cannot** silently exfiltrate data — every outbound call from the Next.js process either is to the chosen LLM provider or is an explicit tool call that is logged to `~/.agent-x/logs/tools.jsonl`.
+Kernel / Agent Browser is the intended browser-middleware provider for JS-heavy or sessioned sites. It requires `KERNEL_API_KEY` and will be wired as a `browser.*` provider, not as an ungoverned fetch bypass.
+
+The agent **cannot** silently exfiltrate data — every outbound call from the Next.js process either is to the chosen LLM provider or is an explicit tool call that is logged with `tool_name`, status, latency, and host metadata. Logs never include raw cookies, OAuth tokens, or authorization headers.
 
 ## Risk-class model
 
