@@ -50,7 +50,8 @@ if [[ -z "$(git status --porcelain)" ]]; then
 fi
 
 # Heuristic for conventional-commit type from staged paths.
-SCOPE="${TASK_ID,,}"
+# Bash 3.x (macOS default /bin/bash) has no ${var,,}; use tr for lowercase scope.
+SCOPE="$(printf '%s\n' "$TASK_ID" | tr '[:upper:]' '[:lower:]')"
 TYPE="feat"
 CHANGED="$(git status --porcelain | awk '{ print $2 }')"
 if echo "$CHANGED" | grep -qE '^docs/'; then
