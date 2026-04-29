@@ -9,6 +9,7 @@ import {
   Eye,
   History,
   Loader2,
+  MessageSquare,
   Pencil,
   Plus,
   Trash2,
@@ -34,6 +35,7 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ShellLayout } from "@/components/shell/Layout";
 import { WidgetHost } from "@/components/shell/WidgetHost";
+import { ChatDock } from "@/components/chat/ChatDock";
 import { listWidgets } from "@/widgets";
 import type { LayoutNode, Shell, WidgetInstance } from "@/lib/shell/schema";
 import type {
@@ -63,6 +65,7 @@ export function ShellView({
   const [editing, setEditing] = useState(false);
   const [pending, startTransition] = useTransition();
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(true);
 
   // Resync local state when the server-rendered prop changes (e.g. after a
   // `router.refresh()` following a revert). We track the last seen
@@ -210,6 +213,18 @@ export function ShellView({
     [frame.id, router],
   );
 
+  const handleAgentRatified = useCallback(
+    (newShell: Shell) => {
+      // The proposal card already wrote the revision to the server. Pull the
+      // fresh revision list from the server (and the new active revisionId)
+      // by refreshing this segment. The dock stays mounted; the chat
+      // conversation persists across the refresh because it lives client-side.
+      setShell(newShell);
+      router.refresh();
+    },
+    [router],
+  );
+
   const renderWidget = useCallback(
     (instanceId: string) => {
       const instance = shell.widgets[instanceId];
@@ -290,6 +305,16 @@ export function ShellView({
           ) : null}
 
           <div className="ml-auto flex items-center gap-1.5">
+            <Button
+              size="sm"
+              variant={chatOpen ? "default" : "outline"}
+              onClick={() => setChatOpen((v) => !v)}
+              aria-pressed={chatOpen}
+            >
+              <MessageSquare data-icon="inline-start" />
+              Agent
+            </Button>
+
             <Button
               size="sm"
               variant={editing ? "default" : "outline"}
@@ -424,12 +449,22 @@ export function ShellView({
         ) : null}
       </header>
 
-      <div className="min-h-0 flex-1">
-        <ShellLayout
-          node={shell.layout}
-          renderWidget={renderWidget}
-          layoutKey={frame.id}
-          className="bg-muted/20"
+      <div className="flex min-h-0 flex-1">
+        <div className="min-w-0 flex-1">
+          <ShellLayout
+            node={shell.layout}
+            renderWidget={renderWidget}
+            layoutKey={frame.id}
+            className="bg-muted/20"
+          />
+        </div>
+        <ChatDock
+          frameId={frame.id}
+          currentShell={shell}
+          parentRevisionId={revisionId}
+          onRatified={handleAgentRatified}
+          open={chatOpen}
+          onOpenChange={setChatOpen}
         />
       </div>
     </div>

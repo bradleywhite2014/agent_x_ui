@@ -134,13 +134,17 @@ Tasks are PR-sized (~≤90 min). IDs are stable: reference them in commit footer
 
 ### Phase 2 — Agent loop (P2)
 
+**Doctrine (clarified 2026-04-28).** The agent has no ambient access to the user's state. It is given the **capability catalog** the middleware publishes (today: our Next.js app's widget + tool registries; later: real middleware fanning out to portco systems) and, when the user is asking to modify the *current* frame, a structure-only summary of that frame. Its only outputs are typed *proposers* (queue a candidate UI for ratification) and typed *action tools* (each with a `riskClass` that gates auto-execute vs confirm). The agent never reads the database, never POSTs revisions, never invents capabilities the catalog didn't advertise.
+
+When the user asks for a brand-new frame the agent operates on (catalog + user message) only. When they're iterating on the current frame the prompt also includes the structure-only summary. The agent must never see widget *contents*, only structure.
+
 | ID | Task | Acceptance |
 |---|---|---|
-| TASK-13 | Persistent chat dock (always-visible bottom drawer, `aria-live` streaming output) | Streamed token output renders without layout shift |
-| TASK-14 | System prompt + shell-context tool (`shell.read`) so the agent always sees the current shell state | Agent answers "what widgets are visible?" correctly |
-| TASK-15 | `shell.proposeMutation` tool — produces a typed `MutationProposal { patch, reasoning, affects }` | Schema-rejected proposals surface a structured error |
-| TASK-16 | Mutation proposal UI: side-by-side diff view (before/after JSON) + ratify/reject + edit-before-ratify | Ratified mutation writes a revision and updates the shell |
-| TASK-17 | Reasoning visible in the revision row + filter "ratified vs reverted" in the history sidebar | History readable at a glance |
+| TASK-13 | `GET /api/capabilities` — widget catalog (slug, name, description, JSON-Schema-shaped propsSchema, defaultProps) + tool catalog (name, description, inputSchema, riskClass). Sourced from the registries. | Endpoint returns the two registered widgets and the seed proposer tools; widget propsSchema round-trips through Zod → JSON Schema cleanly |
+| TASK-14 | Chat dock UI — collapsible right-pane in `/frames/[id]`, streams from `/api/chat` via `useChat`, `aria-live` for accessibility, no layout shift, persists open/closed state in URL or local pref | Streamed tokens render while the shell stays interactive; collapsing/reopening preserves the conversation in-memory |
+| TASK-15 | System-prompt builder + `/api/chat` plumbing — composes catalog + frame-structure summary (instance ids, types, placement; **no widget contents**) + user message. Server-side helper `summarizeFrameStructure(shell)` enforces no contents leak. | Agent can answer "what widgets can I propose?" correctly using catalog only; "what widgets are in this frame?" using the structure summary; "what's in my notes?" returns a refusal because contents aren't in the prompt |
+| TASK-16 | Agent proposer tools (Vercel AI SDK `tool()`): `proposeShell({ shell, reasoning })` and `proposeWidgetAddition({ instanceId, type, props, placement, reasoning })`. Both validated server-side against the capability catalog + Shell Zod schema before being surfaced to the user. Invalid candidates return a typed retry error to the agent (one retry, then surface failure). | A proposal that uses an unknown widget slug or invalid props returns a structured error; a valid proposal yields a `MutationProposal` envelope passed to the client |
+| TASK-17 | Ratify UI — proposal renders inline in the chat dock as a card with side-by-side preview (current frame ↔ proposed frame, both rendered through `ShellLayout` in read-only mode) + "Ratify" / "Discard" / "Edit". Ratify → client POSTs the new shell to existing `/api/frames/[id]/revisions` with `authoredBy = "agent"` and `reasoning`. Revision sidebar surfaces an "agent" badge + the reasoning. | Ratified proposal writes a revision and updates the shell; discarded proposal is dropped; sidebar clearly distinguishes user vs agent revisions |
 
 ### Phase 3 — Theme system (P3)
 

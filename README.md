@@ -16,6 +16,8 @@ This first version is a single-user, local-first sandbox. The agent runs in your
 
 Pre-alpha. Single-user, local-first, in active design. See [`docs/BUILD_PLAN.md`](docs/BUILD_PLAN.md) for the current roadmap and [`docs/TASK_LOG.md`](docs/TASK_LOG.md) for shipped work.
 
+P0 (foundation) and P1 (shell-as-config runtime) are live. P2 (agent loop) is live: a chat dock in `/frames/[id]` streams from `/api/chat`, the agent reads a curated capability catalog (and a structure-only summary of the current frame — never widget contents), and the only writes the agent can produce are typed proposals that the user explicitly ratifies. Doctrine in [`AGENTS.md`](AGENTS.md).
+
 ## Stack
 
 - **Next.js 15** (App Router) + **React 19** + **TypeScript**, strict types, no `any`

@@ -81,6 +81,30 @@ function toRevisionSummary(
   };
 }
 
+/* ----------------------------- name helpers ------------------------------ */
+
+/**
+ * Disambiguate a desired frame name against existing rows by suffixing
+ * `" (2)"`, `" (3)"`, … until the result is unique. The shell.name column
+ * has a unique index — without this, two parallel "Start a Scratchpad"
+ * clicks (or two test workers) would collide.
+ */
+function uniqueFrameName(desired: string): string {
+  const base = desired.trim();
+  if (!base) return base;
+  const db = getDb();
+  const rows = db
+    .select({ name: shells.name })
+    .from(shells)
+    .where(isNull(shells.archivedAt))
+    .all();
+  const used = new Set(rows.map((r) => r.name));
+  if (!used.has(base)) return base;
+  let i = 2;
+  while (used.has(`${base} (${i})`)) i += 1;
+  return `${base} (${i})`;
+}
+
 /* --------------------------------- Reads --------------------------------- */
 
 export function listFrames(): FrameSummary[] {
@@ -217,6 +241,7 @@ export function createFrameFromTemplate(
   if (options.name && options.name.trim().length > 0) {
     shell.name = options.name.trim();
   }
+  shell.name = uniqueFrameName(shell.name);
   // The template builder may produce a partial-but-valid object; full-validate
   // before persisting so storage is always parseable.
   const validated = validateShell(shell);

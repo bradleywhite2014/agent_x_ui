@@ -1,27 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { z } from "zod";
 import { ArrowUpRight, Globe, Loader2, RefreshCw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { WidgetComponentProps, WidgetModule } from "../types";
-
-const propsSchema = z.object({
-  title: z.string().max(80).optional(),
-  url: z
-    .string()
-    .url("URL must include a scheme, e.g. https://…")
-    .default("https://example.com"),
-});
-
-type Props = z.infer<typeof propsSchema>;
-
-const defaultProps: Props = {
-  title: "Web Preview",
-  url: "https://example.com",
-};
+import { meta, propsSchema, defaultProps, type Props } from "./meta";
 
 function WebPreview({ props }: WidgetComponentProps<Props>) {
   const [loadKey, setLoadKey] = useState(0);
@@ -118,13 +103,7 @@ function WebPreview({ props }: WidgetComponentProps<Props>) {
 }
 
 const webPreviewModule: WidgetModule<Props> = {
-  meta: {
-    slug: "web-preview",
-    name: "Web Preview",
-    description:
-      "Embed a website in an iframe. Sites that refuse iframe embedding fall back to an open-in-new-tab affordance.",
-    icon: "globe",
-  },
+  meta,
   propsSchema,
   defaultProps,
   Component: WebPreview,

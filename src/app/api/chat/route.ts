@@ -1,17 +1,34 @@
 import { NextResponse } from "next/server";
-import { streamText, convertToModelMessages, type UIMessage } from "ai";
+import {
+  streamText,
+  convertToModelMessages,
+  tool,
+  type UIMessage,
+} from "ai";
 import { z } from "zod";
 
 import { defaultModel } from "@/lib/ai/models";
 import { resolveRequestId } from "@/lib/request-id";
+import { buildSystemPrompt } from "@/lib/agent/prompt";
+import { summarizeFrameStructure } from "@/lib/agent/summarize";
+import {
+  proposeShellInputSchema,
+  proposeWidgetAdditionInputSchema,
+  PROPOSE_SHELL_TOOL,
+  PROPOSE_WIDGET_ADDITION_TOOL,
+} from "@/lib/agent/tools";
+import {
+  resolveProposeShell,
+  resolveProposeWidgetAddition,
+  type ResolverResult,
+} from "@/lib/agent/proposal";
+import { loadActiveShell, FrameRepoError } from "@/lib/shell/repo";
+import type { Shell } from "@/lib/shell/schema";
+import type { FrameStructureSummary } from "@/lib/agent/summarize";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/**
- * Loose UI-message envelope shape from `@ai-sdk/react`'s `useChat`. We rely on
- * `convertToModelMessages` to coerce parts into the model SDK's input.
- */
 const chatRequestSchema = z.object({
   messages: z
     .array(
@@ -24,13 +41,17 @@ const chatRequestSchema = z.object({
     )
     .min(1)
     .max(200),
+  /**
+   * Optional. When the user is on /frames/[id], the client passes the frame id.
+   * Server loads the active shell ONLY for the structure-only summary that goes
+   * into the system prompt. Widget contents never cross the model boundary.
+   */
+  frameId: z.string().min(1).optional(),
 });
 
-const SYSTEM_PROMPT = [
-  "You are Agent X, a personal agentic work-surface that runs on the operator's machine.",
-  "Stay direct, dense, and concrete. One-line status sentences. Cite what you would touch.",
-  "Never claim capabilities the surface does not yet have. Never request enterprise credentials.",
-].join("\n");
+type ProposalToolPayload =
+  | { ok: true; proposal: Extract<ResolverResult, { ok: true }>["proposal"] }
+  | { ok: false; error: Extract<ResolverResult, { ok: false }>["error"] };
 
 export async function POST(req: Request): Promise<Response> {
   const requestId = resolveRequestId(req.headers);
@@ -63,18 +84,93 @@ export async function POST(req: Request): Promise<Response> {
     );
   }
 
+  let frameSummary: FrameStructureSummary | undefined;
+  let currentShell: Shell | undefined;
+  if (parsed.frameId) {
+    try {
+      const loaded = loadActiveShell(parsed.frameId);
+      currentShell = loaded.shell;
+      frameSummary = summarizeFrameStructure(loaded.shell);
+    } catch (err) {
+      if (!(err instanceof FrameRepoError)) throw err;
+      console.warn(
+        JSON.stringify({
+          route: "/api/chat",
+          request_id: requestId,
+          frameId: parsed.frameId,
+          warning: "frame_not_found_for_summary",
+          message: err.message,
+        }),
+      );
+    }
+  }
+
+  const system = buildSystemPrompt({ frame: frameSummary });
   const modelMessages = await convertToModelMessages(
     parsed.messages as unknown as UIMessage[],
   );
+
+  const tools = {
+    [PROPOSE_SHELL_TOOL.name]: tool({
+      description: PROPOSE_SHELL_TOOL.description,
+      inputSchema: proposeShellInputSchema,
+      execute: async (input): Promise<ProposalToolPayload> => {
+        if (!parsed.frameId) {
+          return {
+            ok: false,
+            error: {
+              code: "invalid_shell",
+              message:
+                "proposeShell requires a current frame context. Open a frame before proposing changes, or ask the user to create one first.",
+            },
+          };
+        }
+        const result = resolveProposeShell({
+          frameId: parsed.frameId,
+          candidate: input.shell,
+          reasoning: input.reasoning,
+        });
+        return result;
+      },
+    }),
+    [PROPOSE_WIDGET_ADDITION_TOOL.name]: tool({
+      description: PROPOSE_WIDGET_ADDITION_TOOL.description,
+      inputSchema: proposeWidgetAdditionInputSchema,
+      execute: async (input): Promise<ProposalToolPayload> => {
+        if (!currentShell) {
+          return {
+            ok: false,
+            error: {
+              code: "invalid_placement",
+              message:
+                "proposeWidgetAddition requires a current frame. Open a frame before iterating on it.",
+            },
+          };
+        }
+        const result = resolveProposeWidgetAddition({
+          currentShell,
+          type: input.type,
+          instanceId: input.instanceId,
+          props: input.props,
+          placement: input.placement,
+          reasoning: input.reasoning,
+        });
+        return result;
+      },
+    }),
+  };
+
   const result = streamText({
     model: defaultModel(),
-    system: SYSTEM_PROMPT,
+    system,
     messages: modelMessages,
+    tools,
     onFinish({ usage }) {
       console.log(
         JSON.stringify({
           route: "/api/chat",
           request_id: requestId,
+          frameId: parsed.frameId ?? null,
           latency_ms: Date.now() - startedAt,
           usage,
         }),

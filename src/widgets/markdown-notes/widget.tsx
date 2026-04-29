@@ -1,25 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { z } from "zod";
 import { Save, NotebookPen, Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { WidgetComponentProps, WidgetModule } from "../types";
-
-const propsSchema = z.object({
-  title: z.string().max(80).optional(),
-  content: z.string().default(""),
-  placeholder: z.string().max(120).optional(),
-});
-
-type Props = z.infer<typeof propsSchema>;
-
-const defaultProps: Props = {
-  title: "Notes",
-  content: "",
-  placeholder: "Write something…",
-};
+import { meta, propsSchema, defaultProps, type Props } from "./meta";
 
 function MarkdownNotes({ props, host }: WidgetComponentProps<Props>) {
   const persisted = props.content ?? "";
@@ -97,12 +83,7 @@ function MarkdownNotes({ props, host }: WidgetComponentProps<Props>) {
 }
 
 const markdownNotesModule: WidgetModule<Props> = {
-  meta: {
-    slug: "markdown-notes",
-    name: "Notes",
-    description: "A plain-text notes panel. Use Cmd/Ctrl+S to save.",
-    icon: "notebook-pen",
-  },
+  meta,
   propsSchema,
   defaultProps,
   Component: MarkdownNotes,

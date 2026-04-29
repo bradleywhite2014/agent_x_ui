@@ -16,15 +16,54 @@
 
 | Path | Method | Phase | Status |
 |---|---|---|---|
-| `/api/health` | GET | P0 | Planned (TASK-1) |
-| `/api/chat` | POST | P0 | Planned (TASK-5) |
-| `/api/shell/[id]` | GET, PATCH | P1 | Planned (TASK-7+) |
-| `/api/shell/[id]/revisions` | GET, POST | P1 | Planned (TASK-12) |
-| `/api/shell/[id]/revisions/[rev]/revert` | POST | P1 | Planned (TASK-12) |
+| `/api/health` | GET | P0 | Live (TASK-1) |
+| `/api/chat` | POST | P0/P2 | Live (TASK-5, P2 added `frameId` body field, system prompt builder, and proposer tools) |
+| `/api/capabilities` | GET | P2 | Live (TASK-13) |
+| `/api/frames` | GET, POST | P1 | Live (TASK-10) |
+| `/api/frames/[id]` | GET | P1 | Live (TASK-10) |
+| `/api/frames/[id]/revisions` | GET, POST | P1 | Live (TASK-11). On agent ratify the client POSTs here with `authoredBy = "agent"`. |
+| `/api/frames/[id]/revert` | POST | P1 | Live (TASK-12) |
 | `/api/theme` | GET, PUT | P3 | Planned (TASK-19) |
-| `/api/tools/web/search` | POST | P5 | Planned (TASK-24) |
-| `/api/tools/web/fetch` | POST | P5 | Planned (TASK-25) |
+| `/api/tools/web/search` | POST | P5 | Deferred (per user, 2026-04-28) |
+| `/api/tools/web/fetch` | POST | P5 | Deferred (per user, 2026-04-28) |
 | `/api/tools/browse` | POST | P4 | Planned (TASK-22) |
+
+### `GET /api/capabilities`
+
+**Purpose.** The single endpoint the in-browser agent reads to learn what it may propose. The agent has no other ambient access to user state.
+
+**Response (200).**
+
+```json
+{
+  "version": "agent-x/capabilities/v1",
+  "widgets": [
+    {
+      "slug": "markdown-notes",
+      "name": "Notes",
+      "description": "A plain-text notes panel. Use Cmd/Ctrl+S to save.",
+      "icon": "notebook-pen",
+      "propsSchema": { "$schema": "...", "type": "object", "properties": { ... } },
+      "defaultProps": { "title": "Notes", "content": "", "placeholder": "Write something…" }
+    }
+  ],
+  "tools": [
+    {
+      "name": "proposeShell",
+      "category": "proposer",
+      "riskClass": "read",
+      "description": "Propose a complete new shell …",
+      "inputSchema": { "$schema": "...", "type": "object", "properties": { ... } }
+    }
+  ]
+}
+```
+
+**Errors.** None expected. The endpoint is local, deterministic, and reads only in-memory registries.
+
+**Telemetry.** `route`, `request_id`. No payload logged (the response is the registry itself, deterministic by build).
+
+**Idempotency.** Yes. Safe to retry, no side effects.
 
 ## Template for new routes
 
