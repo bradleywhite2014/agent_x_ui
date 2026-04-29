@@ -32,7 +32,7 @@
   - **Stable layout key**: the panel layout is keyed on `frame.id`, not `frame.id:revisionId`, so saving widget props doesn't unmount and remount panels (which previously wiped widget UI state like the "saved" badge).
   - **JSON Patch math is deferred** to TASK-15 (P2). P1 stores full snapshots per revision; the schema already has a `patch` column ready for when the agent loop lands.
   - **Add/remove widget UX**: adding wraps the current root layout in a horizontal split when there's only a single widget; removing the second-to-last widget collapses the split back to a single-widget layout. Sizes auto-rebalance evenly to satisfy `split.sizes` summing to 100.
-- **Commit.** *Pending — single P1 commit covering TASK-7 through TASK-12.*
+- **Commit.** `1085d3f` — `feat(p1): shell-as-config runtime — frames, widgets, edit mode, revisions`. Single commit covering TASK-7 through TASK-12, pushed to `origin/main`.
 
 ## 2026-04-28 — TASK-1..TASK-6: Foundation phase (P0)
 
