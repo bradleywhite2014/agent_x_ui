@@ -33,4 +33,4 @@
   - `next.config.ts` sets `turbopack.root` so Next does not pick up the parent-directory `package-lock.json` from `~/`.
   - The dev server fell back to port 3002 because port 3000 was in use; documented in RUNBOOK.
   - Web search tooling (TASK-26 / TASK-27) is **deferred** per user instruction (2026-04-28). Phase 4 still ships the `BrowserPane` widget, which covers most of the same use cases through embedded iframe browsing.
-- **Commit.** Pending — single foundation commit covering all six P0 task IDs.
+- **Commit.** `fd2d6a9` — `feat(p0): foundation phase — Next.js + shadcn + Drizzle + AI SDK`. Single commit covering TASK-1 through TASK-6, pushed to `origin/main`.
