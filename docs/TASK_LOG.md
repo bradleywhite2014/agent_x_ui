@@ -40,7 +40,7 @@
   - Tool `execute` deliberately does **not** write. Returning the proposal as the tool result keeps the AI SDK stream flowing and lets the client be the only entity that can call `POST /api/frames/[id]/revisions`. That's the load-bearing piece of the safety story.
   - Splitting widget metadata into `meta.ts` (server-importable, no `"use client"`) and `widget.tsx` (component, `"use client"`) was forced by the build: importing a client module into a server route returns a client reference, not a value, and `[m.meta.slug, m]` would crash on `meta` being undefined. Now there are two registries — `@/widgets/registry.server` (metadata only, server) and `@/widgets` (full modules, client) — that share a single source of meta.
   - Action tools (`web.fetch`, `browser.*`, future portco APIs) intentionally remain pre-P4. The contract here was designed to absorb them: just add a new entry to the tool catalog with the appropriate `riskClass` and a server-side `execute` that the API layer wraps with confirmation when `requiresConfirm(rc)` is true.
-- **Commit.** `feat(p2): catalog-driven agent loop — proposers, ratify UI, structure-only prompt`.
+- **Commit.** `bd3c713` — `feat(p2): catalog-driven agent loop — proposers, ratify UI, structure-only prompt`. Single commit covering TASK-13 through TASK-17, pushed to `origin/main`.
 
 ## 2026-04-28 — TASK-7..TASK-12: Shell-as-config runtime (P1)
 
