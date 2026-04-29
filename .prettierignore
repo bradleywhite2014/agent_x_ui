@@ -1,0 +1,11 @@
+.next/
+out/
+build/
+node_modules/
+coverage/
+playwright-report/
+test-results/
+*.lock
+package-lock.json
+public/
+src/components/ui/

@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+# bin/task_done — close out a task with the project's standard verification + commit flow.
+#
+# Usage:
+#   bin/task_done <task-id> "<concise result>"
+#
+# Steps:
+#   1. Run typecheck, lint, and (optional) unit tests. Abort on failure.
+#   2. Stage everything, commit with a conventional message that includes the task id.
+#   3. Push to origin/main.
+#
+# Requires the user to have already updated docs/TASK_LOG.md for the task.
+# Never updates git config; never amends pushed commits; never force-pushes.
+
+set -euo pipefail
+
+if [[ $# -lt 2 ]]; then
+  echo "usage: bin/task_done <task-id> \"<concise result>\"" >&2
+  exit 64
+fi
+
+TASK_ID="$1"
+RESULT="$2"
+
+if [[ ! "$TASK_ID" =~ ^TASK-[0-9]+$ ]]; then
+  echo "error: task id must look like TASK-12 (got: $TASK_ID)" >&2
+  exit 64
+fi
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+echo "==> Verifying typecheck..."
+npm run --silent typecheck
+
+echo "==> Verifying lint..."
+npm run --silent lint
+
+if grep -q '"test"' package.json; then
+  echo "==> Running unit tests (best effort)..."
+  npm run --silent test || {
+    echo "error: tests failed; not committing." >&2
+    exit 1
+  }
+fi
+
+if [[ -z "$(git status --porcelain)" ]]; then
+  echo "==> No changes to commit. Done."
+  exit 0
+fi
+
+# Heuristic for conventional-commit type from staged paths.
+SCOPE="${TASK_ID,,}"
+TYPE="feat"
+CHANGED="$(git status --porcelain | awk '{ print $2 }')"
+if echo "$CHANGED" | grep -qE '^docs/'; then
+  TYPE="docs"
+fi
+if echo "$CHANGED" | grep -qiE '\.(test|spec)\.(t|j)sx?$'; then
+  TYPE="test"
+fi
+
+git add -A
+git commit -m "$(cat <<EOF
+${TYPE}(${SCOPE}): ${RESULT}
+
+Refs: ${TASK_ID}
+EOF
+)"
+
+CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+git push origin "$CURRENT_BRANCH"
+
+echo "==> ${TASK_ID} committed and pushed."
