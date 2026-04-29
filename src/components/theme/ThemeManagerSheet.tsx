@@ -266,14 +266,15 @@ export function ThemeManagerSheet({
 
           <section className="flex flex-col gap-3">
             <h3 className="text-muted-foreground font-mono text-[0.65rem] tracking-[0.16em] uppercase">
-              Accent tokens (light)
+              Semantic tokens (light)
             </h3>
             <p className="text-muted-foreground text-xs">
-              Paste CSS color values. Empty inherits from the preset for that
-              slot.
+              Overrides apply to every shadcn primitive that reads CSS variables
+              (`bg-primary`, `border-border`, `--sidebar-*`, charts, `--radius`,
+              …). Empty inherits from the preset for that slot.
             </p>
-            <div className="flex flex-col gap-2">
-              {EDITABLE_THEME_KEYS.slice(0, 6).map((key) => (
+            <div className="grid max-h-[min(50vh,28rem)] grid-cols-1 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
+              {EDITABLE_THEME_KEYS.map((key) => (
                 <label key={key} className="flex flex-col gap-1">
                   <span className="text-muted-foreground font-mono text-[11px]">
                     {key}

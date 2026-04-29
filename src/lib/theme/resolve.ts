@@ -3,6 +3,7 @@ import type { CSSProperties } from "react";
 import type { ThemeOverride } from "@/lib/shell/schema";
 
 import {
+  CSS_VAR_KEYS,
   type CssVarRecord,
   type Density,
   DENSITY_MULTIPLIER,
@@ -109,6 +110,30 @@ export function fontFamilyClass(
   return ff === "mono" ? "font-mono" : "font-sans";
 }
 
+function formatThemeStyleBlocks(
+  light: CssVarRecord,
+  dark: CssVarRecord,
+  densityMultiplier: number,
+): string {
+  const rootVars = {
+    ...toCssCustomProps(light),
+    "--density": String(densityMultiplier),
+  };
+  const darkVars = {
+    ...toCssCustomProps(dark),
+    "--density": String(densityMultiplier),
+  };
+
+  const rootBody = Object.entries(rootVars)
+    .map(([k, v]) => `  ${k}: ${v};`)
+    .join("\n");
+  const darkBody = Object.entries(darkVars)
+    .map(([k, v]) => `  ${k}: ${v};`)
+    .join("\n");
+
+  return `:root {\n${rootBody}\n}\n.dark {\n${darkBody}\n}`;
+}
+
 /**
  * Serialize global-only theme into `<style>` blocks for `:root` and `.dark`.
  * Used by ThemeRuntime to paint non-frame routes.
@@ -124,32 +149,26 @@ export function serializeGlobalThemeStyle(global: GlobalThemeState): string {
     ...paletteRecordFromOverrides(global.overridesDark),
   };
   const density = DENSITY_MULTIPLIER[global.density ?? "normal"];
-
-  const rootVars = { ...toCssCustomProps(ol), "--density": String(density) };
-  const darkVars = { ...toCssCustomProps(od), "--density": String(density) };
-
-  const rootBody = Object.entries(rootVars)
-    .map(([k, v]) => `  ${k}: ${v};`)
-    .join("\n");
-  const darkBody = Object.entries(darkVars)
-    .map(([k, v]) => `  ${k}: ${v};`)
-    .join("\n");
-
-  return `:root {\n${rootBody}\n}\n.dark {\n${darkBody}\n}`;
+  return formatThemeStyleBlocks(ol, od, density);
 }
 
-/** Keys safe to expose as editable targets in Theme Manager (subset). */
-export const EDITABLE_THEME_KEYS: readonly CssVarKey[] = [
-  "primary",
-  "secondary",
-  "accent",
-  "background",
-  "foreground",
-  "muted",
-  "border",
-  "destructive",
-  "radius",
-];
+/**
+ * Full `:root` / `.dark` CSS for **global + frame** merge so portals (dialogs,
+ * dropdowns, sheets that render under `document.body`) pick up the same tokens
+ * as the shell canvas.
+ */
+export function serializeMergedDocumentStyle(
+  global: GlobalThemeState,
+  frame: ThemeOverride | undefined,
+): string {
+  const light = resolveMergedPalette(global, frame, false);
+  const dark = resolveMergedPalette(global, frame, true);
+  const density = DENSITY_MULTIPLIER[resolvedDensity(global, frame)];
+  return formatThemeStyleBlocks(light, dark, density);
+}
+
+/** Every semantic token mapped in `globals.css` `@theme inline` — Theme Manager edits light overrides for these keys. */
+export const EDITABLE_THEME_KEYS: readonly CssVarKey[] = CSS_VAR_KEYS;
 
 export function resetPresetState(presetId: ThemePresetId): GlobalThemeState {
   return {

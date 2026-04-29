@@ -72,7 +72,7 @@ agent_x_ui/
 │   │   ├── theme/              # theme tokens, presets, theme manager
 │   │   └── db/                 # Drizzle schema + migrations + queries
 │   ├── components/
-│   │   ├── ui/                 # shadcn primitives only — do not edit by hand outside the shadcn flow
+│   │   ├── ui/                 # shadcn primitives — add via CLI; inherit `--*` semantic tokens from globals + theme layer
 │   │   ├── shell/              # shell host: layout grid, widget host, edit mode, history sidebar
 │   │   ├── chat/               # persistent chat dock + mutation proposal UI
 │   │   ├── theme/              # theme manager UI
@@ -95,6 +95,13 @@ Architectural rules for code:
 - **Browser is a widget, not a hidden process.** The `BrowserPane` widget is a first-class shell element — draggable, resizable, addressable — copying Space Agent's `<x-browser>` pattern. The user and the agent are co-present on the same browser. v1 backs this with an iframe (limited by `X-Frame-Options`/CSP); v1.5 swaps in an Electron `<webview>` for full enterprise reach. The agent contract (`browser.open` / `navigate` / `click(id, ref)` / `type` / `content` / `detail`) is identical across both backends.
 - **No new runtime dependencies without justification.** Add a one-line rationale to the relevant doc.
 - Composition over inheritance. Registries over hardcoded imports. Adapters over vendor SDK leaks into the rest of the codebase.
+
+## Theming and shadcn/ui
+
+- **Contract.** shadcn/ui components are built on Tailwind utility classes that resolve to **semantic CSS variables** (`--background`, `--primary`, `--sidebar-*`, `--chart-*`, `--radius`, …). Those variables are wired in `src/app/globals.css` under `@theme inline { … }` and enumerated in `src/lib/theme/tokens.ts` as `CSS_VAR_KEYS`.
+- **Agent X layers.** Global prefs + presets merge into `:root` / `.dark` via `ThemeRuntime`. On `/frames/[id]`, `MergedDocumentTheme` injects a **second** stylesheet with **global ∪ frame** merged tokens so **portals** (Dialog, Sheet, DropdownMenu, Select, Sonner, …) attached to `document.body` match the shell canvas — same tokens every primitive expects.
+- **Theme Manager** exposes **all** `CSS_VAR_KEYS` for light-mode overrides (dark overrides remain schema-backed for future UI).
+- **Adding components.** Use the CLI (`components.json` points at this repo; `"cssVariables": true`). New primitives should keep using semantic classes (`bg-card`, `text-muted-foreground`, `border-border`, …), not raw palette hex, so presets and overrides apply automatically.
 
 ## Voice and tone
 

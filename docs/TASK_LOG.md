@@ -15,6 +15,11 @@
 
 ## Entries
 
+## 2026-04-29 — shadcn + theme layering (document + merged document theme)
+
+- **Result.** Refactored theme serialization; added `serializeMergedDocumentStyle` + `MergedDocumentTheme` so `:root`/`.dark` match global∪frame while `/frames/[id]` is mounted — portaled shadcn primitives inherit the same tokens as the shell. Theme Manager lists **all** `CSS_VAR_KEYS` for light overrides. `AGENTS.md` documents the contract (CLI add, semantic classes, CSS vars).
+- **Verification.** `npm run typecheck`, `lint`, `test` (24/24), `build`.
+
 ## 2026-04-29 — Operator chrome + integrations atlas
 
 - **Result.** Daily Operator seed now uses a nested split: **Integration Rail** (left), notes + web preview stack, **Integrations Atlas** strip with mocked Web/Email/Viz/ERP/CRM/Zendesk APIs; `GET /api/integrations/catalog` mirrors the same payload. Shell header adds breadcrumb + template badge. **Integration Rail** and **Integrations Atlas** are registered widgets so Edit → Add widget can compose them like Notes/Web Preview.

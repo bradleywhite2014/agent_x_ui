@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/tooltip";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ThemeManagerSheet } from "@/components/theme/ThemeManagerSheet";
+import { MergedDocumentTheme } from "@/components/theme/MergedDocumentTheme";
 import { useGlobalTheme } from "@/components/theme/GlobalThemeProvider";
 import { buildThemeWrapperStyle, fontFamilyClass } from "@/lib/theme/resolve";
 import { ShellLayout } from "@/components/shell/Layout";
@@ -314,6 +315,7 @@ export function ShellView({
       )}
       style={wrapperStyle}
     >
+      <MergedDocumentTheme shell={shell} />
       <header className="bg-background sticky top-0 z-10 border-b">
         <div className="flex items-center gap-2 px-4 py-2.5">
           <Tooltip>
